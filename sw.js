@@ -1,6 +1,6 @@
-const CACHE_VERSION_ANTERIOR = 6; //subo aqui para no tener problemas :D
+const CACHE_VERSION_ANTERIOR = 0; //subo aqui para no tener problemas :D
 const CACHE_VERSION = CACHE_VERSION_ANTERIOR + 1;
-const APP = "PokemonOffsetToPointer";
+const APP = "TareasPendientes";
 
 const CACHE_INMUTABLE = "CACHE_INMUTABLE_" + APP;
 const CACHE_SHELL = "CACHE_SHELL_" + APP;
@@ -15,8 +15,11 @@ const SHELL = [
     "images/icons/icon-144x144.png",
     "images/icons/icon-512x512.png",
     "sw.js",
-    "pokemonOffsetToPointer.js",
-    "manifest.json"
+    "manifest.json",
+    "main.js",
+    "Lista.js",
+    "Tarea.js",
+    "Categoria.js",
 
 ];
 
