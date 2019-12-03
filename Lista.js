@@ -79,14 +79,14 @@ class Lista {
         });
 
     }
-    HasParent(list, throwException = false) {
+    HasParent(list) {
         if (!(list instanceof Promise))
             list = Promise.resolve(list);
         return list.then((l) => {
             var has;
             var iterParents;
 
-            if (l.Id == this.Id && throwException) {
+            if (l.Id == this.Id) {
                 throw "It's the Same list!!";
             } else {
                 has = this._parents.has(l.Id);
@@ -102,20 +102,17 @@ class Lista {
         });
 
     }
-    AddParent(list, throwException = false) {
+    AddParent(list) {
         if (!(list instanceof Promise))
             list = Promise.resolve(list);
         return list.then((l) => {
-            return this.HasParent(l, true).then((has) => {
+            return this.HasParent(l).then((has) => {
                 if (!has) {
                     this.parent.put(l.Id, l);
                 } else {
                     if (throwException)
                         throw "Ya se está heredando!!";
                 }
-            }).catch((ex) => {
-                if (throwException)
-                    throw ex;
             });
         });
     }
@@ -135,7 +132,7 @@ class Lista {
         return Promise.revolve().then(() => {
             var obj = {
                 Parents = this._parents.entries(), //IdLista,Lista
-                Id = 0, //obtener idUnico
+                Id = this.Id, //obtener idUnico
                 IdCategorias = this._idCategorias.entries(), //idCategoria,Categoria
                 IdHerenciaTareasOcultas = this.IdHerenciaTareasOcultas.entries(), //idTarea,Tarea
                 DicTareasHechas = this._dicTareasHechas.entries(), //idTarea,fecha
@@ -144,11 +141,15 @@ class Lista {
         });
     }
     static GetById(id) {
-        var lista;
-        if (Lista._dic) {
-            lista = Lista._dic.get(id);
-        }
-        return Promsise.revolve(lista);
+        if (!(id instanceof Promise))
+            id = Promise.resolve(id);
+        return id.then((i) => {
+            var lista;
+            if (Lista._dic) {
+                lista = Lista._dic.get(i);
+            }
+            return lista;
+        });
     }
     static Remove(lista) {
         if (!(lista instanceof Promise))

@@ -41,12 +41,16 @@ class Tarea {
         return Promise.resolve(JSON.stringify(this));
     }
     static GetById(id) {
-        var tarea;
+        if (!(id instanceof Promise))
+            id = Promise.resolve(id);
+        return id.then((i) => {
+            var tarea;
 
-        if (Tarea._dic) {
-            tarea = Tarea._dic.get(id);
-        }
-        return Promise.resolve(tarea);
+            if (Tarea._dic) {
+                tarea = Tarea._dic.get(i);
+            }
+            return tarea;
+        });
     }
     static Remove(tarea) {
         if (!(tarea instanceof Promise))

@@ -43,7 +43,7 @@ window.onload = () => {
 };
 
 function SetCategoria(pos) {
-    var categoria = Categoria.GetById(document.getElementById("lstCategorias").children[pos + 1].getAttribute("IdCategoria"));
+    var categoria = Categoria.GetById(document.getElementById("lstCategorias").children[pos + 1].getAttribute("IdCategoria")).resolve();
     var lblCategoriaActual = document.getElementById("lblCategoriaActual");
     var lstListas = document.getElementById("lstListas");
     var lst;
@@ -92,7 +92,7 @@ function PonLista(lst) {
             chkTarea.setAttribute("type", "checkbox");
 
             tarea.appendChild(chkTarea);
-            date = lst.EstaHecha(tareas[i]);
+            date = lst.EstaHecha(tareas[i]).resolve();
             if (date != undefined) {
                 chkTarea.checked = true;
                 tareaDate.innerText = new Date(date).toDateString();

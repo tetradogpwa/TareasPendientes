@@ -50,12 +50,15 @@ class Categoria {
         return CacheUtils.SetJson(Categoria.CacheName, this.Id, this.Export());
     }
     static GetById(id) {
-
-        var categoria;
-        if (Categoria._dic) {
-            categoria = Categoria._dic.get(id);
-        }
-        return Promise.resolve(categoria);
+        if (!(id instanceof Promise))
+            id = Promise.resolve(id);
+        return id.then((i) => {
+            var categoria;
+            if (Categoria._dic) {
+                categoria = Categoria._dic.get(i);
+            }
+            return categoria;
+        });
     }
 
     static GetAll() {
