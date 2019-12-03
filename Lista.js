@@ -35,7 +35,12 @@ class Lista {
             return ArrayUtils.Filter(tareas, (t) => !this._dicTareasHechas.has(t.Id));
         });
     }
-
+    EstaHecha(tarea) {
+        return this._dicTareasHechas.get(tarea.Id);
+    }
+    HacerTarea(tarea) {
+        this._dicTareasHechas.put(tarea.Id, Date.now());
+    }
     RemoveTarea(tarea) {
         //si es heredada la oculta
         if (tarea.IdLista == this.Id) {
@@ -59,24 +64,62 @@ class Lista {
         }
         return has;
     }
-    HasParent(list) {
-        var has = this._parents.has(list.Id);
+    HasParent(list, throwException = false) {
+        var has;
         var iterParents;
-        if (!has) { //así evito la recursividad infinita
-            iterParents = this._parents.entries;
-            for (var i = 0; i < iterParents.length && !has; i++)
-                has = iterParents[i][1].HasParent(list);
 
+        if (list.Id == this.Id && throwException) {
+            throw "It's the Same list!!";
+        } else {
+            has = this._parents.has(list.Id);
+
+            if (!has) { //así evito la recursividad infinita
+                iterParents = this._parents.entries;
+                for (var i = 0; i < iterParents.length && !has; i++)
+                    has = iterParents[i][1].HasParent(list);
+
+            }
         }
         return has;
     }
     AddParent(list, throwException = false) {
-        if (!this.HasParent(list)) {
-            this.parent.put(list.Id, list);
-        } else {
+        try {
+            if (!this.HasParent(list, true)) {
+                this.parent.put(list.Id, list);
+            } else {
+                if (throwException)
+                    throw "Ya se está heredando!!";
+            }
+        } catch (ex) {
             if (throwException)
-                throw "Ya se está heredando!!";
+                throw ex;
         }
+    }
+
+    Load(json) {
+
+        this.Id = json.Id;
+        this._parents = new Map(json.Parents);
+        this._idCategorias = new Map(json.IdCategorias);
+        this._idHerenciaTareasOcultas = new Map(json.IdHerenciaTareasOcultas);
+        this._dicTareasHechas = new Map(json.DicTareasHechas);
+    }
+    Export() {
+        var obj = {
+            Parents = this._parents.entries(), //IdLista,Lista
+            Id = 0, //obtener idUnico
+            IdCategorias = this._idCategorias.entries(), //idCategoria,Categoria
+            IdHerenciaTareasOcultas = this.IdHerenciaTareasOcultas.entries(), //idTarea,Tarea
+            DicTareasHechas = this._dicTareasHechas.entries(), //idTarea,fecha
+        };
+        return JSON.stringify(obj);
+    }
+    static GetById(id) {
+        var lista;
+        if (Lista._dic) {
+            lista = Lista._dic.get(id);
+        }
+        return lista;
     }
     static Remove(lista) {
         if (Lista._dic && Lista._dic.has(lista.Id))
@@ -96,6 +139,33 @@ class Lista {
                 Lista._dic.forEach((l) => { if (l.HasCategoria(categoria)) ArrayUtils.Add(listasCategoria, l); });
             }
             return listasCategoria;
+        });
+    }
+
+
+    static GetAll() {
+        return Promise.resolve().then(() => {
+            var todas;
+            if (Lista._dic) {
+                todas = Lista._dic.values();
+            } else {
+                todas = [];
+            }
+            return todas;
+        });
+    }
+    static ExportAll() {
+        return GetAll().then((listas) => listas.map((l) => l.Export())).then((listas) => {
+            return JSON.stringify(listas);
+        });
+    }
+    static Import(strJSONListas) {
+        return Promise.resolve().then(() => {
+            var listasJSON = JSON.parse(strJSONListas);
+            for (var i = 0; i < listasJSON.length; i++) {
+                new Lista().Load(listasJSON[i]);
+
+            }
         });
     }
 

@@ -28,6 +28,21 @@ class Tarea {
     set IdLista(idLista) {
         this._idLista = idLista;
     }
+    Load(json) {
+        this.Text = json.Text;
+        this.IdLista = json.IdLista;
+        this.Id = json.Id;
+    }
+    Export() {
+        return JSON.stringify(this);
+    }
+    static GetById(id) {
+        var tarea;
+        if (Tarea._dic) {
+            tarea = Tarea._dic.get(id);
+        }
+        return tarea;
+    }
     static Remove(tarea) {
         return Promise.resolve().then(() => {
             if (Tarea._dic && Tarea._dic.has(tarea.Id))
@@ -44,16 +59,41 @@ class Tarea {
     }
     static Get(lista) {
         return Promise.resolve().then(() => {
-            var tareasLista = [];
+            var tareasLista;
+
             if (Tarea._dic) {
-                Tarea._dic.foreach((tarea) => {
-                    if (tarea.IdLista == lista.Id) {
-                        ArrayUtils.Add(tareasLista, tarea);
-                    }
-                });
+                tareasLista = ArrayUtils.Filter(Tarea._dic.values(), (tarea) => tarea.IdLista == lista.Id);
+
+            } else tareasLista = [];
+
+            return tareasLista;
+        });
+    }
+
+
+    static GetAll() {
+        return Promise.resolve().then(() => {
+            var todas;
+            if (Tarea._dic) {
+                todas = Tarea._dic.values();
+            } else {
+                todas = [];
+            }
+            return todas;
+        });
+    }
+    static ExportAll() {
+        return GetAll().then((tareas) => {
+            return JSON.stringify(tareas);
+        });
+    }
+    static Import(strJSONTareas) {
+        return Promise.resolve().then(() => {
+            var tareasJSON = JSON.parse(strJSONTareas);
+            for (var i = 0; i < tareasJSON.length; i++) {
+                new Tarea().Load(tareasJSON[i]);
 
             }
-            return tareasLista;
         });
     }
 }
