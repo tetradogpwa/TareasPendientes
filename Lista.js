@@ -36,107 +36,147 @@ class Lista {
         });
     }
     EstaHecha(tarea) {
-        return this._dicTareasHechas.get(tarea.Id);
+        if (!(tarea instanceof Promise))
+            tarea = Promise.resolve(tarea);
+        return tarea.then((t) => this._dicTareasHechas.get(t.Id));
     }
     HacerTarea(tarea) {
-        this._dicTareasHechas.put(tarea.Id, Date.now());
+        if (!(tarea instanceof Promise))
+            tarea = Promise.resolve(tarea);
+        return tarea.then((t) => {
+            this._dicTareasHechas.put(t.Id, Date.now());
+        });
     }
     RemoveTarea(tarea) {
-        //si es heredada la oculta
-        if (tarea.IdLista == this.Id) {
-            //la quito
-            Tarea.Remove(tarea);
-        } else {
-            //la oculto
-            if (!this._idHerenciaTareasOcultas.has(tarea.Id)) {
-                this._idHerenciaTareasOcultas.set(tarea.Id, tarea);
+        if (!(tarea instanceof Promise))
+            tarea = Promise.resolve(tarea);
+        return tarea.then((t) => {
+            //si es heredada la oculta
+            if (t.IdLista == this.Id) {
+                //la quito
+                Tarea.Remove(t);
+            } else {
+                //la oculto
+                if (!this._idHerenciaTareasOcultas.has(t.Id)) {
+                    this._idHerenciaTareasOcultas.set(t.Id, t);
+                }
             }
-        }
+        });
     }
     HasCategoria(categoria) {
-        var has = this._idCategorias.has(categoria.Id);
-        var iterParents;
-        if (!has) {
-            iterParents = this._parents.entries;
-            for (var i = 0; i < iterParents.length && !has; i++)
-                has = iterParents[i][1].HasCategoria(categoria);
+        if (!(categoria instanceof Promise))
+            categoria = Promise.resolve(categoria);
+        return categoria.then((c) => {
+            var has = this._idCategorias.has(c.Id);
+            var iterParents;
+            if (!has) {
+                iterParents = this._parents.values();
+                for (var i = 0; i < iterParents.length && !has; i++)
+                    has = iterParents[i].HasCategoria(c).resolve();
 
-        }
-        return has;
+            }
+            return has;
+        });
+
     }
     HasParent(list, throwException = false) {
-        var has;
-        var iterParents;
+        if (!(list instanceof Promise))
+            list = Promise.resolve(list);
+        return list.then((l) => {
+            var has;
+            var iterParents;
 
-        if (list.Id == this.Id && throwException) {
-            throw "It's the Same list!!";
-        } else {
-            has = this._parents.has(list.Id);
+            if (l.Id == this.Id && throwException) {
+                throw "It's the Same list!!";
+            } else {
+                has = this._parents.has(l.Id);
 
-            if (!has) { //así evito la recursividad infinita
-                iterParents = this._parents.entries;
-                for (var i = 0; i < iterParents.length && !has; i++)
-                    has = iterParents[i][1].HasParent(list);
+                if (!has) { //así evito la recursividad infinita
+                    iterParents = this._parents.values();
+                    for (var i = 0; i < iterParents.length && !has; i++)
+                        has = iterParents[i].HasParent(l).revolve();
 
+                }
             }
-        }
-        return has;
+            return has;
+        });
+
     }
     AddParent(list, throwException = false) {
-        try {
-            if (!this.HasParent(list, true)) {
-                this.parent.put(list.Id, list);
-            } else {
+        if (!(list instanceof Promise))
+            list = Promise.resolve(list);
+        return list.then((l) => {
+            return this.HasParent(l, true).then((has) => {
+                if (!has) {
+                    this.parent.put(l.Id, l);
+                } else {
+                    if (throwException)
+                        throw "Ya se está heredando!!";
+                }
+            }).catch((ex) => {
                 if (throwException)
-                    throw "Ya se está heredando!!";
-            }
-        } catch (ex) {
-            if (throwException)
-                throw ex;
-        }
+                    throw ex;
+            });
+        });
     }
 
     Load(json) {
-
-        this.Id = json.Id;
-        this._parents = new Map(json.Parents);
-        this._idCategorias = new Map(json.IdCategorias);
-        this._idHerenciaTareasOcultas = new Map(json.IdHerenciaTareasOcultas);
-        this._dicTareasHechas = new Map(json.DicTareasHechas);
+        if (!(json instanceof Promise))
+            json = Promise.resolve(json);
+        return json.then((j) => {
+            this.Id = j.Id;
+            this._parents = new Map(j.Parents);
+            this._idCategorias = new Map(j.IdCategorias);
+            this._idHerenciaTareasOcultas = new Map(j.IdHerenciaTareasOcultas);
+            this._dicTareasHechas = new Map(j.DicTareasHechas);
+        });
     }
     Export() {
-        var obj = {
-            Parents = this._parents.entries(), //IdLista,Lista
-            Id = 0, //obtener idUnico
-            IdCategorias = this._idCategorias.entries(), //idCategoria,Categoria
-            IdHerenciaTareasOcultas = this.IdHerenciaTareasOcultas.entries(), //idTarea,Tarea
-            DicTareasHechas = this._dicTareasHechas.entries(), //idTarea,fecha
-        };
-        return JSON.stringify(obj);
+        return Promise.revolve().then(() => {
+            var obj = {
+                Parents = this._parents.entries(), //IdLista,Lista
+                Id = 0, //obtener idUnico
+                IdCategorias = this._idCategorias.entries(), //idCategoria,Categoria
+                IdHerenciaTareasOcultas = this.IdHerenciaTareasOcultas.entries(), //idTarea,Tarea
+                DicTareasHechas = this._dicTareasHechas.entries(), //idTarea,fecha
+            };
+            return JSON.stringify(obj);
+        });
     }
     static GetById(id) {
         var lista;
         if (Lista._dic) {
             lista = Lista._dic.get(id);
         }
-        return lista;
+        return Promsise.revolve(lista);
     }
     static Remove(lista) {
-        if (Lista._dic && Lista._dic.has(lista.Id))
-            Lista._dic.delete(lista.Id);
+        if (!(lista instanceof Promise))
+            lista = Promise.resolve(lista);
+        return lista.then((l) => {
+            if (Lista._dic && Lista._dic.has(l.Id))
+                Lista._dic.delete(l.Id);
+        });
+
     }
     static Add(lista) {
-        if (!Lista._dic)
-            Lista._dic = new Map();
-        if (!Lista._dic.has(lista.Id))
-            Lista._dic.put(lista.Id, lista);
+        if (!(lista instanceof Promise))
+            lista = Promise.resolve(lista);
+        return lista.then((l) => {
+            if (!Lista._dic)
+                Lista._dic = new Map();
+            if (!Lista._dic.has(l.Id))
+                Lista._dic.put(l.Id, lista);
+        });
     }
 
     static Get(categoria) {
-        return Promise.resolve().then(() => {
+        if (!(categoria instanceof Promise))
+            categoria = Promise.resolve(categoria);
+        return categoria.then((c) => {
             var listasCategoria = [];
             if (Lista._dic) {
-                Lista._dic.forEach((l) => { if (l.HasCategoria(categoria)) ArrayUtils.Add(listasCategoria, l); });
+                Lista._dic.forEach((l) => { if (l.HasCategoria(c)) ArrayUtils.Add(listasCategoria, l); });
             }
             return listasCategoria;
         });
@@ -160,12 +200,16 @@ class Lista {
         });
     }
     static Import(strJSONListas) {
-        return Promise.resolve().then(() => {
-            var listasJSON = JSON.parse(strJSONListas);
+        if (!(strJSONListas instanceof Promise))
+            strJSONListas = Promise.resolve(strJSONListas);
+        return strJSONListas.then((json) => {
+            var listasJSON = JSON.parse(json);
+            var promseas = [];
             for (var i = 0; i < listasJSON.length; i++) {
-                new Lista().Load(listasJSON[i]);
+                ArrayUtils.Add(promesas, new Lista().Load(listasJSON[i]));
 
             }
+            return Promise.all(promseas);
         });
     }
 

@@ -29,40 +29,51 @@ class Tarea {
         this._idLista = idLista;
     }
     Load(json) {
-        this.Text = json.Text;
-        this.IdLista = json.IdLista;
-        this.Id = json.Id;
+        if (!(json instanceof Promise))
+            json = Promise.resolve(json);
+        return json.then((j) => {
+            this.Text = j.Text;
+            this.IdLista = j.IdLista;
+            this.Id = j.Id;
+        });
     }
     Export() {
-        return JSON.stringify(this);
+        return Promise.resolve(JSON.stringify(this));
     }
     static GetById(id) {
         var tarea;
+
         if (Tarea._dic) {
             tarea = Tarea._dic.get(id);
         }
-        return tarea;
+        return Promise.resolve(tarea);
     }
     static Remove(tarea) {
-        return Promise.resolve().then(() => {
-            if (Tarea._dic && Tarea._dic.has(tarea.Id))
-                Tarea._dic.delete(tarea.Id);
+        if (!(tarea instanceof Promise))
+            tarea = Promise.resolve(tarea);
+        return tarea.then((t) => {
+            if (Tarea._dic && Tarea._dic.has(t.Id))
+                Tarea._dic.delete(t.Id);
         });
     }
     static Add(tarea) {
-        return Promise.resolve().then(() => {
+        if (!(tarea instanceof Promise))
+            tarea = Promise.resolve(tarea);
+        return tarea.then((t) => {
             if (!Tarea._dic)
                 Tarea._dic = new Map();
-            if (!Tarea._dic.has(tarea.Id))
-                Tarea._dic.put(tarea.Id, tarea);
+            if (!Tarea._dic.has(t.Id))
+                Tarea._dic.put(t.Id, t);
         });
     }
     static Get(lista) {
-        return Promise.resolve().then(() => {
+        if (!(lista instanceof Promise))
+            lista = Promise.resolve(lista);
+        return lista.then((l) => {
             var tareasLista;
 
             if (Tarea._dic) {
-                tareasLista = ArrayUtils.Filter(Tarea._dic.values(), (tarea) => tarea.IdLista == lista.Id);
+                tareasLista = ArrayUtils.Filter(Tarea._dic.values(), (tarea) => tarea.IdLista == l.Id);
 
             } else tareasLista = [];
 
@@ -88,12 +99,16 @@ class Tarea {
         });
     }
     static Import(strJSONTareas) {
-        return Promise.resolve().then(() => {
-            var tareasJSON = JSON.parse(strJSONTareas);
+        if (!(strJSONTareas instanceof Promise))
+            strJSONTareas = Promise.resolve(strJSONTareas);
+        return strJSONTareas.then((json) => {
+            var tareasJSON = JSON.parse(json);
+            var promesas = [];
             for (var i = 0; i < tareasJSON.length; i++) {
-                new Tarea().Load(tareasJSON[i]);
+                ArrayUtils.Add(promesas, new Tarea().Load(tareasJSON[i]));
 
             }
+            return Promise.all(promesas);
         });
     }
 }

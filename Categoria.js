@@ -1,4 +1,14 @@
+window.Import(window._ROOTUTILS + "Utils/CacheUtils.js");
+
 class Categoria {
+    static get CacheName() {
+        if (!Categoria._cacheName)
+            Categoria._cacheName = "TareasPendientes_Categorias";
+        return Categoria._cacheName;
+    }
+    static set CacheName(cacheName) {
+        Categoria._cacheName = cacheName;
+    }
     Categoria() {
         this._name = "";
         this._id = 0; //hacer idUnico
@@ -28,18 +38,24 @@ class Categoria {
         Categoria._dic.put(id, this);
     }
     Load(json) {
-        this.Name = json.Name;
-        this.Id = json.Id;
+        return Promise.resolve().then(() => {
+            this.Name = json.Name;
+            this.Id = json.Id;
+        });
     }
     Export() {
-        return JSON.stringify(this);
+        return Priomise.resolve(JSON.stringify(this));
+    }
+    Save() {
+        return CacheUtils.SetJson(Categoria.CacheName, this.Id, this.Export());
     }
     static GetById(id) {
+
         var categoria;
         if (Categoria._dic) {
             categoria = Categoria._dic.get(id);
         }
-        return categoria;
+        return Promise.resolve(categoria);
     }
 
     static GetAll() {
@@ -53,19 +69,42 @@ class Categoria {
             return todas;
         });
     }
+
     static ExportAll() {
-        return GetAll().then((categorias) => {
+        return Categoria.GetAll().then((categorias) => {
             return JSON.stringify(categorias);
         });
     }
-    static Import(strJSONCategorias) {
-        return Promise.resolve().then(() => {
-            var categoriasJson = JSON.parse(strJSONCategorias);
-            for (var i = 0; i < categoriasJson.length; i++) {
-                new Categoria().Load(categoriasJson[i]);
-
-            }
+    static SaveAll() {
+        return Categoria.ExportAll().then((categoriasJson) => {
+            var promesas = [];
+            for (var i = 0; i < categoriasJson.length; i++)
+                ArrayUtils.Add(promesas, CacheUtils.SetJson(Categoria.CacheName, categoriasJson[i].Id, categoriasJson[i]));
+            return Promise.all(promesas);
         });
     }
+    static LoadAll() {
+        return CacheUtils.GetKeys(Categoria.CacheName).then((keys) => {
+                var categoria;
+                var promesas = [];
+                for (var i = 0; i < keys.length; i++) {
+                    categoria = new Categoria();
+                    ArrayUtils.Add(promesas, CacheUtils.GetJson(Categoria.CacheName, keys[i]).then(categoria.Load);
+                    }
+                    return Promise.all(promesas);
+                });
+        }
+        static Import(strJSONCategorias) {
+            if (!(strJSONCategorias instanceof Promise))
+                strJSONCategorias = Promse.resolve(strJSONCategorias);
 
-}
+            return strJSONCategorias.then((json) => {
+                var categoriasJson = JSON.parse(json);
+                for (var i = 0; i < categoriasJson.length; i++) {
+                    new Categoria().Load(categoriasJson[i]);
+
+                }
+            });
+        }
+
+    }
