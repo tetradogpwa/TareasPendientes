@@ -87,27 +87,26 @@ class Categoria {
         });
     }
     static LoadAll() {
-        return CacheUtils.GetKeys(Categoria.CacheName).then((keys) => {
-                var categoria;
-                var promesas = [];
-                for (var i = 0; i < keys.length; i++) {
-                    categoria = new Categoria();
-                    ArrayUtils.Add(promesas, CacheUtils.GetJson(Categoria.CacheName, keys[i]).then(categoria.Load);
-                    }
-                    return Promise.all(promesas);
-                });
-        }
-        static Import(strJSONCategorias) {
-            if (!(strJSONCategorias instanceof Promise))
-                strJSONCategorias = Promse.resolve(strJSONCategorias);
-
-            return strJSONCategorias.then((json) => {
-                var categoriasJson = JSON.parse(json);
-                for (var i = 0; i < categoriasJson.length; i++) {
-                    new Categoria().Load(categoriasJson[i]);
-
-                }
-            });
-        }
-
+        return CacheUtils.GetAllJson(Categoria.CacheName).then((categoriasJson) => {
+            var categorias = [];
+            for (var i = 0; i < categoriasJson.length; i++) {
+                ArrayUtils.Add(categorias, new Categoria());
+                categorias[i].Load(categoriasJson[i]);
+            }
+            return categorias;
+        });
     }
+    static Import(strJSONCategorias) {
+        if (!(strJSONCategorias instanceof Promise))
+            strJSONCategorias = Promse.resolve(strJSONCategorias);
+
+        return strJSONCategorias.then((json) => {
+            var categoriasJson = JSON.parse(json);
+            for (var i = 0; i < categoriasJson.length; i++) {
+                new Categoria().Load(categoriasJson[i]);
+
+            }
+        });
+    }
+
+}
