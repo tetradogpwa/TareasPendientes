@@ -89,11 +89,12 @@ class Categoria {
     static LoadAll() {
         return CacheUtils.GetAllJson(Categoria.CacheName).then((categoriasJson) => {
             var categorias = [];
+            var loads=[];
             for (var i = 0; i < categoriasJson.length; i++) {
                 ArrayUtils.Add(categorias, new Categoria());
-                categorias[i].Load(categoriasJson[i]);
+                ArrayUtils.Add(loads,  categorias[i].Load(categoriasJson[i]));
             }
-            return categorias;
+            return Promise.all(loads).then(()=> categorias);
         });
     }
     static Import(strJSONCategorias) {
@@ -102,10 +103,16 @@ class Categoria {
 
         return strJSONCategorias.then((json) => {
             var categoriasJson = JSON.parse(json);
+            var categorias=[];
+            var loads=[];
+            var categoria;
             for (var i = 0; i < categoriasJson.length; i++) {
-                new Categoria().Load(categoriasJson[i]);
+                categoria=new Categoria();
+                ArrayUtils.Add(categorias,categoria);
+                ArrayUtils.Add(loads, categoria.Load(categoriasJson[i]));
 
             }
+            return Promise.all(loads).then(()=> categorias);
         });
     }
 
