@@ -1,0 +1,17 @@
+﻿@if (Listas != null)
+{
+    @for(int i=0;i<Listas.Count;i++)
+    {
+        <a @onclick="@(()=>OnClick.InvokeAsync(Listas[i]))">@Listas[i].Nombre</a>
+
+    }
+
+}
+@*Por si quieren poner un boton para añadir o un check box para borrar al hacer click *@
+@ChildContent
+
+@code {
+    [Parameter] public List<Lista> Listas { get; set; }
+    [Parameter] public EventCallback<Lista> OnClick { get; set; }
+    [Parameter] public RenderFragment ChildContent { get; set; }
+}
