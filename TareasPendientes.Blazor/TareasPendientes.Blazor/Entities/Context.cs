@@ -25,6 +25,20 @@ namespace TareasPendientes.Blazor.Entities
                 Listas = Lista.LoadListas(xmlDocument.ChildNodes[1]);
             }
         }
+        public void LoadXML(string strXML)
+        {
+            XmlDocument xml = new XmlDocument();
+            xml.LoadXml(strXML);
+            LoadXML(xml);
+        }
+        public void LoadXML(XmlDocument xml)
+        {
+            Context context;
+            Lista.ListasCargadas.Clear();
+            context= new Context(xml);
+            Categorias = context.Categorias;
+            Listas = context.Listas;
+        }
         public XmlDocument ToXmlDocument()
         {
             XmlDocument xml = new XmlDocument();
@@ -43,7 +57,9 @@ namespace TareasPendientes.Blazor.Entities
             {
                 xml = new XmlDocument();
                 xml.LoadXml(strXmlDocument);
+                
             }
+            
             return new Context(xml);
         }
     }

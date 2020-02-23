@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,14 +9,34 @@ namespace TareasPendientes.Blazor.Helpers
 {
     public class DataSaveLocal : IDataSave
     {
-        public string Load()
+        const string ID = "BD_TareasPendientes";
+        [Inject] IJSRuntime JS { get; set; }
+        public async Task<string> LoadAsync()
         {
-            throw new NotImplementedException();
+            return await JS.InvokeAsync<string>("LoadLocalStorage", ID);
         }
 
-        public void Save(string dataXML)
+        public async Task SaveAsync(string dataXML)
         {
-            throw new NotImplementedException();
+            await JS.InvokeVoidAsync("SaveLocalStorage", ID, dataXML);
+        }
+
+        string IDataSave.Load()
+        {
+            Task<string> load = LoadAsync();
+            if(load.Status==TaskStatus.WaitingToRun)
+             load.Start();
+            load.Wait();
+            return load.Result;
+        }
+
+        void IDataSave.Save(string dataXML)
+        {
+            Task save = SaveAsync(dataXML);
+            if (save.Status == TaskStatus.WaitingToRun)
+                save.Start();
+            save.Wait();
+
         }
     }
 }

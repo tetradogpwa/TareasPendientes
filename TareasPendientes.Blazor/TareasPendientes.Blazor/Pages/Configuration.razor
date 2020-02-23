@@ -1,6 +1,31 @@
 ﻿@page "/configuration"
+@inject IJSRuntime JS
 <h3>Configuration</h3>
 
+<h2>Exportar BD</h2>
+<input type="file" onclick="ExportarBD" value="Exportar"/>
+
+<h2>Importar BD</h2>
+<InputFile OnChange="ImportarBD"/>
+
 @code {
+    [CascadingParameter]  Context context { get; set; }
+    async Task ExportarBD()
+    {
+        string data=context.ToXmlDocument().OuterXml;
+        string fileName = "BD_TareasPendientes_" + DateTime.Now.Ticks + ".xml";
+        await JS.InvokeAsync<object>("FileSaveAs", fileName, data);
+
+    }
+    async Task ImportarBD(IFileListEntry[] files)
+    {
+        IFileListEntry file=files.FirstOrDefault();
+        string data;
+        if (file != null)
+        {
+            data = System.Text.ASCIIEncoding.ASCII.GetString((await file.ReadAllAsync()).ToArray());
+            context.LoadXML(data);
+        }
+    }
 
 }

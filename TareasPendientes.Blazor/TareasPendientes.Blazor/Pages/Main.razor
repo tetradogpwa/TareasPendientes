@@ -1,5 +1,5 @@
 ﻿@page "/"
-@inject IDataSave dataSave
+
 @if(context==null)
 {
     <text>Cargando...</text>
@@ -12,17 +12,8 @@ else
 
 @code {
 
-    Context context { get; set; }
+   [CascadingParameter]  Context context { get; set; }
 
-    protected override void OnInitialized()
-    {
-        base.OnInitialized();
-        context = Context.Load(dataSave.Load());
 
-    }
-    public void Save()
-    {
-        dataSave.Save(context.ToXmlDocument().OuterXml);
-    }
 
 }
