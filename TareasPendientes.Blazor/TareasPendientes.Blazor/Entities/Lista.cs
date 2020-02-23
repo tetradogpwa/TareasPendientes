@@ -155,12 +155,17 @@ namespace TareasPendientes.Blazor.Entities
 
 		public IEnumerator<Tarea> GetEnumerator()
 		{
+                      LlistaOrdenada<long, Tarea> lst=new LlistaOrdenada<long, Tarea>();
+
 			for (int i = 0; i < ListasHeredadas.Count; i++)
 				foreach (Tarea tarea in ListasCargadas[ListasHeredadas.GetValueAt(i)])
-					if (!IdTareasHeredadasOcultas.ContainsKey(tarea.Id))
-						yield return tarea;
+					if (!IdTareasHeredadasOcultas.ContainsKey(tarea.Id)&&!lst.ContainsKey(tarea.Id))
+						lst.Add(tarea.Id, tarea);
 			for (int i=0;i< TareasLista.Count;i++)
-				yield return TareasLista[i];
+                             if!(lst.ContainsKey(TareasLista[i].Id))
+				lst.Add(TareasLista[i].Id,TareasLista[i]);
+
+                       return lst.GetValue().GetEnumerator();
 
 		}
 
