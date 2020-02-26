@@ -1,6 +1,15 @@
-﻿
+﻿@if (Lista != null)
+{
+    i = 0;
+    @foreach (Tarea tarea in Lista)
+    {
+        <VisorTarea class="@(i % 2 == 0 ? "par" : "impar")" IdTarea="tarea.Id" Lista="Lista" EditMode="EditMode" />
+        i++;
+    }
+}
 
 @code {
-    [Parameter]public Lista Lista { get; set; }
-    [Parameter]public bool EditMode { get; set; }
+    [Parameter] public Lista Lista { get; set; }
+    [Parameter] public bool EditMode { get; set; }
+    int i;
 }

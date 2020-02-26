@@ -16,6 +16,7 @@ namespace TareasPendientes.Blazor.Entities
         public static LlistaOrdenada<long, Lista> ListasCargadas = new LlistaOrdenada<long, Lista>();
         public string Nombre { get; set; }
         public long Id { get; set; }
+        LlistaOrdenada<long, Tarea> Tareas;
 
         public List<Tarea> TareasLista { get; private set; }
         public LlistaOrdenada<long> ListasHeredadas { get; private set; }
@@ -33,6 +34,8 @@ namespace TareasPendientes.Blazor.Entities
             FechaTareaHecha = new LlistaOrdenada<long, long>();
             if (!ListasCargadas.ContainsKey(Id))
                 ListasCargadas.Add(Id, this);
+            ListasHeredadas.Updated += (s, e) => Tareas.Clear();
+          
         }
         public Lista(XmlNode nodeList) : this(nodeList.ChildNodes[0].InnerText.DescaparCaracteresXML(), long.Parse(nodeList.ChildNodes[1].InnerText))
         {
@@ -71,16 +74,19 @@ namespace TareasPendientes.Blazor.Entities
         {
             Tarea tarea = new Tarea(textTarea);
             TareasLista.Add(tarea);
+            Tareas.Add(tarea.Id, tarea);
             return tarea;
         }
         public bool RemoveTarea(Tarea tarea)
         {
             bool removed = TareasLista.Remove(tarea);
-            if (!removed && !IdTareasHeredadasOcultas.ContainsKey(tarea.Id) && EstaTareaHeredada(tarea))
+            if (!removed && !IdTareasHeredadasOcultas.ContainsKey(tarea.Id) && EstaTarea(tarea))
             {
                 IdTareasHeredadasOcultas.Add(tarea.Id);
 
             }
+            if(removed)
+              Tareas.Remove(tarea.Id);
             return removed;
         }
         public void TareaHecha(Tarea tarea)
@@ -91,17 +97,19 @@ namespace TareasPendientes.Blazor.Entities
         {
             FechaTareaHecha.Remove(tarea.Id);
         }
-        private bool EstaTareaHeredada(Tarea tarea)
+        private bool EstaTarea(Tarea tarea)
         {
-            bool esta = false;
+            RefreshTareas();
+            return  Tareas.ContainsKey(tarea.Id);
+        }
+        public Tarea Get(long idTarea)
+        {
+            Tarea tarea = null;
+            RefreshTareas();
+            if (Tareas.ContainsKey(idTarea))
+                tarea = Tareas[idTarea];
+            return tarea;
 
-            this.WhileEach((tareaLista) =>
-            {
-                esta = tarea.Id == tareaLista.Id;
-                return !esta;
-            });
-
-            return esta;
         }
 
         private bool NoHereda(Lista listaAHeredar)
@@ -155,18 +163,23 @@ namespace TareasPendientes.Blazor.Entities
 
         public IEnumerator<Tarea> GetEnumerator()
         {
-            SortedList<long, Tarea> lst = new SortedList<long, Tarea>();
+            RefreshTareas();
+            return Tareas.Values.GetEnumerator();
 
-            for (int i = 0; i < ListasHeredadas.Count; i++)
-                foreach (Tarea tarea in ListasCargadas[ListasHeredadas.GetValueAt(i)])
-                    if (!IdTareasHeredadasOcultas.ContainsKey(tarea.Id) && !lst.ContainsKey(tarea.Id))
-                        lst.Add(tarea.Id, tarea);
-            for (int i = 0; i < TareasLista.Count; i++)
-                if(!lst.ContainsKey(TareasLista[i].Id))
-                   lst.Add(TareasLista[i].Id, TareasLista[i]);
+        }
 
-            return lst.Values.GetEnumerator();
-
+        private void RefreshTareas()
+        {
+            if (Tareas.Count == 0)
+            {
+                for (int i = 0; i < ListasHeredadas.Count; i++)
+                    foreach (Tarea tarea in ListasCargadas[ListasHeredadas.GetValueAt(i)])
+                        if (!IdTareasHeredadasOcultas.ContainsKey(tarea.Id) && !Tareas.ContainsKey(tarea.Id))
+                            Tareas.Add(tarea.Id, tarea);
+                for (int i = 0; i < TareasLista.Count; i++)
+                    if (!Tareas.ContainsKey(TareasLista[i].Id))
+                        Tareas.Add(TareasLista[i].Id, TareasLista[i]);
+            }
         }
 
         IEnumerator IEnumerable.GetEnumerator()

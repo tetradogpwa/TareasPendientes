@@ -18,11 +18,22 @@ namespace TareasPendientes.Blazor.Entities
             {
                 Categorias = new List<Categoria>();
                 Listas = new List<Lista>();
+ 
             }
             else
             {
                 Categorias = Categoria.LoadCategorias(xmlDocument.ChildNodes[0]);
                 Listas = Lista.LoadListas(xmlDocument.ChildNodes[1]);
+            }
+
+            if (Categorias.Count == 0)
+            {
+                Categorias.Add(new Categoria("Todas", 0));
+             
+            }
+            if(Listas.Count==0)
+            {
+                Listas.Add(new Lista("Mi primera lista",0));
             }
         }
         public void LoadXML(string strXML)

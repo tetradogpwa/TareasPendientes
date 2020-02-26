@@ -7,8 +7,9 @@
 
 <div class="main">
     <div class="top-row px-4">
+        <button class="btn-save float-left" @onclick="@(()=>Save())" disabled="@(disabled)">Guardar</button>
         <a href="https://github.com/tetradogpwa/TareasPendientes" target="_blank" class="ml-md-auto">Sobre</a>
-        <button  @onclick="@(()=>Save())" disabled="@disabled" >Guardar</button>
+
     </div>
 
     <div class="content px-4">
@@ -23,19 +24,22 @@
     bool disabled = false;
     protected override void OnInitialized()
     {
-        string data = dataSave.Load();
-         Console.WriteLine(string.IsNullOrEmpty(data));
-        Console.WriteLine(data);
-       
+        string data = null;//dataSave.Load();
         base.OnInitialized();
         context = Context.Load(data);
     }
 
     public void Save()
     {
-        disabled = true;
-        dataSave.Save(context.ToXmlDocument().OuterXml);
-        disabled = false;
-
+        try
+        {
+            disabled = true;
+            dataSave.Save(context.ToXmlDocument().OuterXml);
+        }
+        catch { }
+        finally
+        {
+            disabled = false;
+        }
     }
 }

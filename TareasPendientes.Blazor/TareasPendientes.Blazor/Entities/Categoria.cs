@@ -19,10 +19,31 @@ namespace TareasPendientes.Blazor.Entities
 		public List<Lista> GetListas() {
 
 			List<Lista> lista = new List<Lista>();
-			for (int i = 0; i < Listas.Count; i++)
-				lista.Add(Lista.ListasCargadas[Listas.GetValueAt(i)]);
+			if (Id != 0)
+			{
+				for (int i = 0; i < Listas.Count; i++)
+					lista.Add(Lista.ListasCargadas[Listas.GetValueAt(i)]);
+			}
+			else
+			{
+				lista.AddRange(Lista.ListasCargadas.GetValues());
+			}
 			return lista;
 		
+		}
+		public Lista GetListaAt(int index = 0)
+		{
+			Lista lst;
+			if (Id != 0)
+			{
+				lst = Lista.ListasCargadas[Listas.GetValueAt(index)];
+
+			}
+			else
+			{
+				lst = Lista.ListasCargadas.GetValueAt(index);
+			}
+			return lst;
 		}
 		public Categoria(string nombre,long id = -1)
 		{

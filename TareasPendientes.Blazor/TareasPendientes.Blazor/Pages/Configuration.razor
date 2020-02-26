@@ -3,7 +3,7 @@
 <h3>Configuration</h3>
 
 <h2>Exportar BD</h2>
-<input type="file" onclick="ExportarBD" value="Exportar"/>
+<input type="button" value="Download" @onclick="ExportarBD"/>
 
 <h2>Importar BD</h2>
 <InputFile OnChange="ImportarBD"/>
@@ -15,6 +15,7 @@
         string data=context.ToXmlDocument().OuterXml;
         string fileName = "BD_TareasPendientes_" + DateTime.Now.Ticks + ".xml";
         await JS.InvokeAsync<object>("FileSaveAs", fileName, data);
+        //da problemas pone que no se ha podido descargar...
 
     }
     async Task ImportarBD(IFileListEntry[] files)

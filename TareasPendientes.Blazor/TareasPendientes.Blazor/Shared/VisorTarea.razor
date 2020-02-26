@@ -1,6 +1,38 @@
-﻿<h3>VisorTarea</h3>
-
+﻿@if (EditMode)
+{
+    <textarea class="Texto-Tarea" @bind="@Tarea.Texto"/>
+}
+else
+{
+<div class="Texto-Tarea">
+    @((MarkupString)Tarea.Texto)
+</div>
+}
+<text class="FechaHecho-Tarea">@FechaHecho</text>
+<InputCheckbox @onchange="HechoNoHecho"/>
 @code {
     [Parameter] public bool EditMode { get; set; }
+    [Parameter] public long IdTarea { get; set; }
+    [Parameter] public Lista Lista { get; set; }
+    Tarea Tarea
+    {
+        get
+        {
+            return Lista.Get(IdTarea);
+        }
+    }
+    string FechaHecho
+    {
+        get
+        {
+            return Lista.EstaHecha(Tarea)?new DateTime(Lista.FechaTareaHecha[Tarea.Id]).ToString("DD-MM-YY HH:mm:SS"): "";
+        }
+    }
+    void HechoNoHecho()
+    {
+        if (Lista.EstaHecha(Tarea))
+            Lista.TareaNoHecha(Tarea);
+        else Lista.TareaHecha(Tarea);
+    }
 
 }

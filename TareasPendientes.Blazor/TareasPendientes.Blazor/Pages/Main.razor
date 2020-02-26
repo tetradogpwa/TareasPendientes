@@ -6,14 +6,69 @@
 }
 else
 {
-    
+    <div class="float-left">
+        <select @onchange="@((s)=>posCategoria=(int)s.Value)">
+            @for (int i = 0; i < context.Categorias.Count; i++)
+            {
+                <option value="@i">@context.Categorias[i].Nombre</option>
+            }
+        </select>
+        <VisorListas Listas="Listas">
+            <div>
+                <InputText @bind="nameList" />
+                <button @onclick="AddList" value="Add" disabled="@String.IsNullOrEmpty(nameList)" />
+            </div>
+        </VisorListas>
+    </div>
+    <div class="float-right">
+        <InputText @bind="@ActualList.Nombre"/>
+        <VisorTareas Lista="@ActualList" EditMode="editMode" />
+        <div>
+            <InputCheckbox @bind="editMode"/>
+            <button class="Add-Tarea" @onclick="AddTarea" value="+" disabled="@(!HayLista)"/>
+        </div>
+    </div>
 }
 
 
 @code {
 
-   [CascadingParameter]  Context context { get; set; }
+    [CascadingParameter]  Context context { get; set; }
+    string nameList = null;
+    int posCategoria;
+    bool editMode = false;
+    Categoria Categoria
+    {
+        get { return context.Categorias[posCategoria]; }
+    }
+    List<Lista> Listas
+    {
+        get
+        {
+            return Categoria.GetListas();
+        }
+    }
+    Lista ActualList
+    {
+        get;set;
+    }
+    bool HayLista => ActualList != null;
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        posCategoria = 0;
+        ActualList =  Categoria.GetListaAt(0);
+    }
 
-
+    void AddList()
+    {
+        context.Listas.Add(new Lista(nameList));
+        nameList = null;
+    }
+    void AddTarea()
+    {
+        if (ActualList != null)
+            ActualList.AddTarea();
+    }
 
 }
