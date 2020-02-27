@@ -111,6 +111,10 @@ namespace TareasPendientes.Blazor.Entities
               Tareas.Remove(tarea.Id);
             return removed;
         }
+        public bool RemoveTarea(long idTarea)
+        {
+            return RemoveTarea(Tareas[idTarea]);
+        }
         public void TareaHecha(Tarea tarea)
         {
             FechaTareaHecha.Add(tarea.Id, DateTime.Now.Ticks);

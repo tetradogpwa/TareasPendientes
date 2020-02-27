@@ -1,7 +1,11 @@
 ﻿@page "/organitze"
-@inject IJSRuntime JS
-<h3>Categorias</h3>
 
+<h3>Categorias</h3>
+<div class="EditarListaCategorias">
+    @*añadir/editar nombre Categoria*@
+    @*Añadir/Quitar listas Categoria*@
+
+</div>
 <h3>Editar Listas</h3>
 <VisorListas Listas="context.Listas" OnClick="OnListaSeleccionada" />
 <h4>Herencia </h4>
@@ -49,7 +53,7 @@
     {
         if(this.Pregunta($"Quieres quitar la lista '{lista.Nombre}' de la herencia?"))
         {
-
+            ListaSeleccionada.RemoveList(lista);
         }
     }
     void OnListaSeleccionada(Lista lista)
@@ -60,9 +64,9 @@
     void PreguntarSiQuiereEliminarTarea(long id)
     {
         string aux = ListaSeleccionada.TareasLista.ContainsKey(id) ? "quitar" : "ocultar";
-        if(this.Pregunta($"Quieres {aux } esta tarea de la herencia?"))
+        if(this.Pregunta($"Quieres {aux} esta tarea de la lista {ListaSeleccionada.Nombre}?"))
         {
-
+            ListaSeleccionada.RemoveTarea(id);
         }
     }
 
