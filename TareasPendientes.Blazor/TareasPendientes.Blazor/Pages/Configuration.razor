@@ -1,21 +1,21 @@
 ﻿@page "/configuration"
-@inject IJSRuntime JS
+
 <h3>Configuration</h3>
 
 <h2>Exportar BD</h2>
 <input type="button" value="Download" @onclick="ExportarBD"/>
 
 <h2>Importar BD</h2>
-<InputFile OnChange="ImportarBD"/>
+<InputFile OnChange="ImportarBD" />
 
 @code {
     [CascadingParameter]  Context context { get; set; }
-    async Task ExportarBD()
+    void ExportarBD()
     {
         string data=context.ToXmlDocument().OuterXml;
-        string fileName = "BD_TareasPendientes_" + DateTime.Now.Ticks + ".xml";
-        await JS.InvokeAsync<object>("FileSaveAs", fileName, data);
-        //da problemas pone que no se ha podido descargar...
+        string fileName = "BD_TareasPendientes " + DateTime.Now.ToString("d-M-yyyy HH mm ss") + ".xml";
+        this.DownloadFile(fileName, data, "application/xml");
+     
 
     }
     async Task ImportarBD(IFileListEntry[] files)
@@ -24,7 +24,7 @@
         string data;
         if (file != null)
         {
-            data = System.Text.ASCIIEncoding.ASCII.GetString((await file.ReadAllAsync()).ToArray());
+            data = await file.LoadStringAsync();
             context.LoadXML(data);
         }
     }

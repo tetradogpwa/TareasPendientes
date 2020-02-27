@@ -3,7 +3,7 @@
     i = 0;
     @foreach (Tarea tarea in Lista)
     {
-        <VisorTarea class="@(i % 2 == 0 ? "par" : "impar")" IdTarea="tarea.Id" Lista="Lista" EditMode="EditMode" />
+        <VisorTarea Class="@(i % 2 == 0 ? "par" : "impar")" IdTarea="tarea.Id" Lista="Lista" EditMode="EditMode" />
         i++;
     }
 }

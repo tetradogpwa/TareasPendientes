@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Gabriel.Cat.S.Extension;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -50,6 +51,7 @@ namespace TareasPendientes.Blazor.Entities
             Categorias = context.Categorias;
             Listas = context.Listas;
         }
+   
         public XmlDocument ToXmlDocument()
         {
             XmlDocument xml = new XmlDocument();

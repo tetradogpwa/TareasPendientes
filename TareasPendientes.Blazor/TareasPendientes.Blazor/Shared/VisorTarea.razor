@@ -1,19 +1,29 @@
-﻿@if (EditMode)
-{
-    <textarea class="Texto-Tarea" @bind="@Tarea.Texto"/>
-}
-else
-{
-<div class="Texto-Tarea">
-    @((MarkupString)Tarea.Texto)
+﻿<div class="@Class Tarea" @onclick="@(()=>OnClick.InvokeAsync(IdTarea))">
+    @if (EditMode)
+    {
+        <textarea class="Texto-Tarea LaMitadDeEspacio" @bind="@Tarea.Texto" />
+    }
+    else
+    {
+        <div class="Texto-Tarea LaMitadDeEspacio">
+            @((MarkupString)Tarea.Texto)
+        </div>
+    }
+<div class="LaMitadDeEspacio">
+    <text class="FechaHecho-Tarea ">@FechaHecho</text>
 </div>
-}
-<text class="FechaHecho-Tarea">@FechaHecho</text>
-<InputCheckbox @onchange="HechoNoHecho"/>
+    @if (MarcarHecho)
+    {
+      <input class="CheckBox-TareaHecha" type="checkbox" @onchange="HechoNoHecho" />
+    }
+</div>
 @code {
     [Parameter] public bool EditMode { get; set; }
     [Parameter] public long IdTarea { get; set; }
     [Parameter] public Lista Lista { get; set; }
+    [Parameter] public string Class { get;set;}
+    [Parameter] public bool MarcarHecho { get; set; } = true;
+    [Parameter] public EventCallback<long> OnClick { get; set; }
     Tarea Tarea
     {
         get
@@ -25,7 +35,7 @@ else
     {
         get
         {
-            return Lista.EstaHecha(Tarea)?new DateTime(Lista.FechaTareaHecha[Tarea.Id]).ToString("DD-MM-YY HH:mm:SS"): "";
+            return Lista.EstaHecha(Tarea)?new DateTime(Lista.FechaTareaHecha[Tarea.Id]).ToString("d/M/yyyy HH:mm:ss"): "";
         }
     }
     void HechoNoHecho()

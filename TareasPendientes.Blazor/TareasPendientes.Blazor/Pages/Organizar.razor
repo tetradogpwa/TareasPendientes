@@ -1,6 +1,69 @@
 ﻿@page "/organitze"
-<h3>Organizar</h3>
+@inject IJSRuntime JS
+<h3>Categorias</h3>
+
+<h3>Editar Listas</h3>
+<VisorListas Listas="context.Listas" OnClick="OnListaSeleccionada" />
+<h4>Herencia </h4>
+<div class="Herencia-TareaLista">
+    @if (ListaSeleccionada != null)
+    {
+        <VisorListas Listas="NoHeredadas" OnClick="PonListaEnLaHerencia"/>
+        <VisorListas Listas="Heredadas" OnClick="PreguntaSiQuiereQuitarLaLista"/>
+    }
+</div>
+
+<h4>Eliminar/Ocultar Tarea</h4>
+<div class="EliminarOcultar-TareaLista">
+    @if (ListaSeleccionada != null)
+    {
+        <VisorTareas Lista="ListaSeleccionada" MarcarHecho="false" OnClick="PreguntarSiQuiereEliminarTarea" />
+    }
+    </div>
 
 @code {
+    [CascadingParameter] Context context { get; set; }
+    Lista ListaSeleccionada
+    {
+        get;set;
+    }
+    List<Lista> NoHeredadas
+    {
+        get
+        {
+            return ListaSeleccionada.GetListasNoHeredadas();
+        }
+    }
+    List<Lista> Heredadas
+    {
+        get
+        {
+            return ListaSeleccionada.GetListasHeredadas();
+        }
+    }
+    void PonListaEnLaHerencia(Lista lista)
+    {
+        ListaSeleccionada.AddList(lista);
+    }
+    void  PreguntaSiQuiereQuitarLaLista(Lista lista)
+    {
+        if(this.Pregunta($"Quieres quitar la lista '{lista.Nombre}' de la herencia?"))
+        {
+
+        }
+    }
+    void OnListaSeleccionada(Lista lista)
+    {
+        ListaSeleccionada = lista;
+
+    }
+    void PreguntarSiQuiereEliminarTarea(long id)
+    {
+        string aux = ListaSeleccionada.TareasLista.ContainsKey(id) ? "quitar" : "ocultar";
+        if(this.Pregunta($"Quieres {aux } esta tarea de la herencia?"))
+        {
+
+        }
+    }
 
 }

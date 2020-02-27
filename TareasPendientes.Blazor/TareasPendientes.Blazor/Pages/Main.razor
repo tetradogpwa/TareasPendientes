@@ -6,26 +6,27 @@
 }
 else
 {
-    <div class="float-left">
-        <select @onchange="@((s)=>posCategoria=(int)s.Value)">
+    <div class="float-left ParteListas LaMitadDeEspacio">
+        <select class="TodoElEspacio" @onchange="@((s)=>posCategoria=(int)s.Value)" >
             @for (int i = 0; i < context.Categorias.Count; i++)
             {
-                <option value="@i">@context.Categorias[i].Nombre</option>
+                <option class="TodoElEspacio" value="@i">@context.Categorias[i].Nombre</option>
             }
         </select>
+        <br/>
         <VisorListas Listas="Listas">
             <div>
-                <InputText @bind="nameList" />
-                <button @onclick="AddList" value="Add" disabled="@String.IsNullOrEmpty(nameList)" />
+                <input class="TodoElEspacio" type="text" @bind="nameList"   />
+                <button @onclick="AddList" value="Add" disabled="@String.IsNullOrEmpty(nameList)" >+</button>
             </div>
         </VisorListas>
     </div>
-    <div class="float-right">
-        <InputText @bind="@ActualList.Nombre"/>
+    <div class="float-right ParteTareas LaMitadDeEspacio">
+        <input class="TextBox-NombreLista TodoElEspacio" type="text"  @bind="@ActualList.Nombre"/>
         <VisorTareas Lista="@ActualList" EditMode="editMode" />
         <div>
-            <InputCheckbox @bind="editMode"/>
-            <button class="Add-Tarea" @onclick="AddTarea" value="+" disabled="@(!HayLista)"/>
+            <label><input type="checkbox" @bind="editMode" />Editar</label>
+            <button class="Add-Tarea" @onclick="AddTarea" value="+" disabled="@(!HayLista)">+</button>
         </div>
     </div>
 }

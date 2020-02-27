@@ -184,8 +184,26 @@ app {
 
 
 
-///TareasPendientes
-.impar{
-    background-color:aquamarine;
 
+.impar{
+    background:aquamarine;
+
+}
+.TodoElEspacio{
+    width:95%;
+}
+.LaMitadDeEspacio {
+    width: 48%;
+    min-width: 48%;
+}
+.CheckBox-TareaHecha {
+    display: inline-block;
+    width: 4%;
+}
+.Texto-Tarea {
+    display: inline-block;
+    background-color: transparent;
+}
+.Add-Tarea{
+    display:lef
 }

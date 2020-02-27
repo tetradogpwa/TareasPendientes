@@ -16,9 +16,9 @@ namespace TareasPendientes.Blazor.Entities
         public static LlistaOrdenada<long, Lista> ListasCargadas = new LlistaOrdenada<long, Lista>();
         public string Nombre { get; set; }
         public long Id { get; set; }
-        LlistaOrdenada<long, Tarea> Tareas;
+        LlistaOrdenada<long, Tarea> Tareas { get; set; }
 
-        public List<Tarea> TareasLista { get; private set; }
+        public LlistaOrdenada<long,Tarea> TareasLista { get; private set; }
         public LlistaOrdenada<long> ListasHeredadas { get; private set; }
         public LlistaOrdenada<long> IdTareasHeredadasOcultas { get; private set; }
         public LlistaOrdenada<long, long> FechaTareaHecha { get; private set; }//IdTarea,Ticks
@@ -27,8 +27,9 @@ namespace TareasPendientes.Blazor.Entities
             if (id < 0)
                 Id = DateTime.Now.Ticks;
             else Id = id;
+            Tareas = new LlistaOrdenada<long, Tarea>();
             Nombre = nombre;
-            TareasLista = new List<Tarea>();
+            TareasLista = new LlistaOrdenada<long, Tarea>();
             ListasHeredadas = new LlistaOrdenada<long>();
             IdTareasHeredadasOcultas = new LlistaOrdenada<long>();
             FechaTareaHecha = new LlistaOrdenada<long, long>();
@@ -39,9 +40,11 @@ namespace TareasPendientes.Blazor.Entities
         }
         public Lista(XmlNode nodeList) : this(nodeList.ChildNodes[0].InnerText.DescaparCaracteresXML(), long.Parse(nodeList.ChildNodes[1].InnerText))
         {
+            Tarea tarea;
             for (int i = 0; i < nodeList.ChildNodes[2].ChildNodes.Count; i++)
             {
-                TareasLista.Add(new Tarea(nodeList.ChildNodes[2].ChildNodes[i]));
+                tarea = new Tarea(nodeList.ChildNodes[2].ChildNodes[i]);
+                TareasLista.Add(tarea.Id,tarea);
             }
             for (int i = 0; i < nodeList.ChildNodes[3].ChildNodes.Count; i++)
             {
@@ -56,6 +59,25 @@ namespace TareasPendientes.Blazor.Entities
                 FechaTareaHecha.Add(long.Parse(nodeList.ChildNodes[5].ChildNodes[i].ChildNodes[0].InnerText), long.Parse(nodeList.ChildNodes[5].ChildNodes[i].ChildNodes[1].InnerText));
             }
         }
+
+        public SortedList<long, long> GetIdListas()
+        {
+            SortedList<long, long> ids = new SortedList<long, long>();
+            long id;
+            for (int i = 0; i < ListasHeredadas.Count; i++)
+            {
+                id = ListasHeredadas.GetValueAt(i);
+                ids.Add(id, id);
+
+                foreach (var lst in Lista.ListasCargadas[ListasHeredadas[id]].GetIdListas())
+                {
+                    if (!ids.ContainsKey(lst.Value))ids.Add(lst.Key,lst.Key) ;
+                }
+            }
+            ids.Add(Id, Id);
+            return ids;
+        }
+
         public bool EstaHecha(Tarea tarea) => FechaTareaHecha.ContainsKey(tarea.Id);
         public bool AddList(Lista listaAHeredar)
         {
@@ -73,13 +95,13 @@ namespace TareasPendientes.Blazor.Entities
         public Tarea AddTarea(string textTarea = "")
         {
             Tarea tarea = new Tarea(textTarea);
-            TareasLista.Add(tarea);
+            TareasLista.Add(tarea.Id,tarea);
             Tareas.Add(tarea.Id, tarea);
             return tarea;
         }
         public bool RemoveTarea(Tarea tarea)
         {
-            bool removed = TareasLista.Remove(tarea);
+            bool removed = TareasLista.Remove(tarea.Id);
             if (!removed && !IdTareasHeredadasOcultas.ContainsKey(tarea.Id) && EstaTarea(tarea))
             {
                 IdTareasHeredadasOcultas.Add(tarea.Id);
@@ -128,7 +150,16 @@ namespace TareasPendientes.Blazor.Entities
             }
             return noHereda;
         }
-
+        public List<Lista> GetListasNoHeredadas()
+        {
+            SortedList<long, long> dicHerencia = GetIdListas();
+            return Lista.ListasCargadas.Values.ToArray().Filtra((lst) => !dicHerencia.ContainsKey(lst.Id));
+        }
+        public List<Lista> GetListasHeredadas()
+        {
+            SortedList<long, long> dicHerencia = GetIdListas();
+            return Lista.ListasCargadas.Values.ToArray().Filtra((lst)=>dicHerencia.ContainsKey(lst.Id));
+        }
         public XmlNode ToXml()
         {
             XmlDocument xml = new XmlDocument();
@@ -137,7 +168,7 @@ namespace TareasPendientes.Blazor.Entities
             //IdLista
             //tareasLista
             for (int i = 0; i < TareasLista.Count; i++)
-                strNode.Append(TareasLista[i].ToXml().OuterXml);
+                strNode.Append(TareasLista.GetValueAt(i).ToXml().OuterXml);
             strNode.Append("</Tareas>");
             //ListasHeredadas
             strNode.Append("<ListasHeredadas>");
@@ -154,7 +185,7 @@ namespace TareasPendientes.Blazor.Entities
             for (int i = 0; i < IdTareasHeredadasOcultas.Count; i++)
                 strNode.Append($"<Tarea><IdTarea>{IdTareasHeredadasOcultas.GetKey(i).ToString()}</IdTarea><Hora>{IdTareasHeredadasOcultas.GetValueAt(i).ToString()}</Hora></Tarea>");
             strNode.Append("</TareasHechas>");
-
+            strNode.Append("</List>");
 
             xml.LoadXml(strNode.ToString());
             xml.Normalize();
@@ -177,8 +208,8 @@ namespace TareasPendientes.Blazor.Entities
                         if (!IdTareasHeredadasOcultas.ContainsKey(tarea.Id) && !Tareas.ContainsKey(tarea.Id))
                             Tareas.Add(tarea.Id, tarea);
                 for (int i = 0; i < TareasLista.Count; i++)
-                    if (!Tareas.ContainsKey(TareasLista[i].Id))
-                        Tareas.Add(TareasLista[i].Id, TareasLista[i]);
+                    if (!Tareas.ContainsKey(TareasLista.GetValueAt(i).Id))
+                        Tareas.Add(TareasLista.GetValueAt(i).Id, TareasLista.GetValueAt(i));
             }
         }
 
