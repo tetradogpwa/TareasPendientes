@@ -12,7 +12,7 @@
 <div class="LaMitadDeEspacio">
     <text class="FechaHecho-Tarea ">@FechaHecho</text>
 </div>
-    @if (MarcarHecho)
+    @if (MostrarCheckHecho)
     {
       <input class="CheckBox-TareaHecha" type="checkbox" @onchange="HechoNoHecho" />
     }
@@ -22,7 +22,7 @@
     [Parameter] public long IdTarea { get; set; }
     [Parameter] public Lista Lista { get; set; }
     [Parameter] public string Class { get;set;}
-    [Parameter] public bool MarcarHecho { get; set; } = true;
+    [Parameter] public bool MostrarCheckHecho { get; set; } = true;
     [Parameter] public EventCallback<long> OnClick { get; set; }
     Tarea Tarea
     {

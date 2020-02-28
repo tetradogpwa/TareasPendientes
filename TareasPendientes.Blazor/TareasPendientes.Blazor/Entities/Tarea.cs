@@ -9,7 +9,9 @@ using System.Xml;
 
 namespace TareasPendientes.Blazor.Entities
 {
-    public class Tarea { 
+    public class Tarea {
+
+        public static LlistaOrdenada<long, Tarea> TareasCargadas { get; private set; } = new LlistaOrdenada<long, Tarea>();
         public long Id { get; set; }
         public string Texto { get; set; }
 
@@ -19,6 +21,8 @@ namespace TareasPendientes.Blazor.Entities
             if (id < 0)
                 Id = DateTime.Now.Ticks;
             else Id = id;
+            if(!TareasCargadas.ContainsKey(Id))
+                 TareasCargadas.Add(Id, this);
         }
         public Tarea(XmlNode nodeTarea):this(nodeTarea.ChildNodes[0].InnerText.DescaparCaracteresXML(),long.Parse(nodeTarea.ChildNodes[1].InnerText))
         { }
@@ -32,6 +36,11 @@ namespace TareasPendientes.Blazor.Entities
             xml.LoadXml(strNode.ToString());
             xml.Normalize();
             return xml.FirstChild;
+        }
+
+        public static List<Tarea> HaveToContain(string textoAContener)
+        {
+            return TareasCargadas.Filtra((tarea) => tarea.Value.Texto.Contains(textoAContener)).ConvertAll<Tarea>((tarea)=>tarea.Value);
         }
 
     }

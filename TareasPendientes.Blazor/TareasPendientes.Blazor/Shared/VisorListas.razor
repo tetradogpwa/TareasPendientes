@@ -2,10 +2,8 @@
 {
     @for (int i = 0; i < Listas.Count; i++)
     {
-        <div class="TodoElEspacio @(i%2==0?"par":"impar") ">
-          <a  @onclick="@(()=>OnClick.InvokeAsync(Listas[i]))">@Listas[i].Nombre</a>
-        </div>
-
+        <VisorLista Lista="Listas[i]" OnClick="OnClick"/>
+        <br/>
     }
 
 }

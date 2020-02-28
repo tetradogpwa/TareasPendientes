@@ -197,11 +197,13 @@ app {
     min-width: 48%;
 }
 .CheckBox-TareaHecha {
-    display: inline-block;
+    display: flex;
+    justify-content: right;
     width: 4%;
 }
 .Texto-Tarea {
     display: inline-block;
+
     background-color: transparent;
 }
 .Add-Tarea{

@@ -1,6 +1,38 @@
 ﻿@page "/search"
 <h3>Search</h3>
+<input class="TodoElEspacio" type="text" @bind="TextoToSearch" />
+<button class="btn btn-info" @onclick="@(()=>Buscar())" disabled="@(string.IsNullOrEmpty(TextoToSearch))">Buscar</button>
+<h4>Tareas que contienen el texto a buscar</h4>
+<VisorTareas Lista="ListaTemporal" OnClick="MostarListasTarea" MostrarCheckHecho="false" />
+<h4>Listas que contienen la Tarea</h4>
+<VisorListas Listas="ListasTarea" OnClick="MostrarLista"/>
 
 @code {
+    string TextoToSearch { get; set; }
+    Lista ListaTemporal { get; set; }
+    List<Lista> ListasTarea { get; set; }
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        ListaTemporal = new Lista("temporal",0);
+        ListasTarea = new List<Lista>();
+    }
+    async Task Buscar()
+    {
+        List<Tarea> tareas = Tarea.HaveToContain(TextoToSearch);
+        ListaTemporal=new Lista("temporal",0);
+        ListasTarea.Clear();
+        for (int i = 0; i < tareas.Count; i++)
+            ListaTemporal.TareasLista.Add(tareas[i].Id, tareas[i]);
+
+    }
+    async Task MostarListasTarea(long idTarea)
+    {
+        ListasTarea = Lista.TienenTarea(Tarea.TareasCargadas[idTarea]);
+    }
+    async Task MostrarLista(Lista lista)
+    {
+        //cargo el main con esta lista puesta
+    }
 
 }

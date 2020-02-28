@@ -2,8 +2,8 @@
 {
     i = 0;
     @foreach (Tarea tarea in Lista)
-    {
-        <VisorTarea Class="@(i % 2 == 0 ? "par" : "impar")" IdTarea="tarea.Id" Lista="Lista" EditMode="EditMode" />
+    { 
+        <VisorTarea Class="@(i % 2 == 0 ? "par" : "impar")" IdTarea="tarea.Id" Lista="Lista" EditMode="EditMode" OnClick="OnClick" MostrarCheckHecho="MostrarCheckHecho"/>
         i++;
     }
 }
@@ -11,5 +11,7 @@
 @code {
     [Parameter] public Lista Lista { get; set; }
     [Parameter] public bool EditMode { get; set; }
+    [Parameter] public EventCallback<long> OnClick { get; set; }
+    [Parameter] public bool MostrarCheckHecho { get; set; } = true;
     int i;
 }

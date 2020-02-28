@@ -14,10 +14,10 @@ else
             }
         </select>
         <br/>
-        <VisorListas Listas="Listas">
+        <VisorListas Listas="Listas" OnClick="MostrarLista">
             <div>
                 <input class="TodoElEspacio" type="text" @bind="nameList"   />
-                <button @onclick="AddList" value="Add" disabled="@String.IsNullOrEmpty(nameList)" >+</button>
+                <button class="btn btn-light" @onclick="AddList" value="Add" disabled="@String.IsNullOrEmpty(nameList)" >+</button>
             </div>
         </VisorListas>
     </div>
@@ -26,7 +26,7 @@ else
         <VisorTareas Lista="@ActualList" EditMode="editMode" />
         <div>
             <label><input type="checkbox" @bind="editMode" />Editar</label>
-            <button class="Add-Tarea" @onclick="AddTarea" value="+" disabled="@(!HayLista)">+</button>
+            <button class="Add-Tarea btn btn-light" @onclick="AddTarea" value="+" disabled="@(!HayLista)">+</button>
         </div>
     </div>
 }
@@ -70,6 +70,10 @@ else
     {
         if (ActualList != null)
             ActualList.AddTarea();
+    }
+    void MostrarLista(Lista lista)
+    {
+        ActualList = lista;
     }
 
 }

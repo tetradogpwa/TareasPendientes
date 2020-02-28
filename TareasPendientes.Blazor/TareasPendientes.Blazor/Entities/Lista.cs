@@ -63,13 +63,10 @@ namespace TareasPendientes.Blazor.Entities
         public SortedList<long, long> GetIdListas()
         {
             SortedList<long, long> ids = new SortedList<long, long>();
-            long id;
+
             for (int i = 0; i < ListasHeredadas.Count; i++)
             {
-                id = ListasHeredadas.GetValueAt(i);
-                ids.Add(id, id);
-
-                foreach (var lst in Lista.ListasCargadas[ListasHeredadas[id]].GetIdListas())
+                foreach (var lst in Lista.ListasCargadas[ListasHeredadas[ListasHeredadas.GetValueAt(i)]].GetIdListas())
                 {
                     if (!ids.ContainsKey(lst.Value))ids.Add(lst.Key,lst.Key) ;
                 }
@@ -81,8 +78,8 @@ namespace TareasPendientes.Blazor.Entities
         public bool EstaHecha(Tarea tarea) => FechaTareaHecha.ContainsKey(tarea.Id);
         public bool AddList(Lista listaAHeredar)
         {
-            bool noSeHereda = Id != listaAHeredar.Id && NoHereda(listaAHeredar);
-            if (noSeHereda)
+            bool noSeHereda = Id != listaAHeredar.Id && NoHereda(listaAHeredar)&&listaAHeredar.NoHereda(this);
+            if (noSeHereda)//mirar que se sea padre de estas...si se añade el hijo al padre
             {
                 ListasHeredadas.Add(listaAHeredar.Id);
             }
@@ -157,11 +154,12 @@ namespace TareasPendientes.Blazor.Entities
         public List<Lista> GetListasNoHeredadas()
         {
             SortedList<long, long> dicHerencia = GetIdListas();
-            return Lista.ListasCargadas.Values.ToArray().Filtra((lst) => !dicHerencia.ContainsKey(lst.Id));
+            return Lista.ListasCargadas.Values.ToArray().Filtra((lst) => !dicHerencia.ContainsKey(lst.Id) && lst.NoHereda(this));
         }
         public List<Lista> GetListasHeredadas()
         {
             SortedList<long, long> dicHerencia = GetIdListas();
+            dicHerencia.Remove(Id);
             return Lista.ListasCargadas.Values.ToArray().Filtra((lst)=>dicHerencia.ContainsKey(lst.Id));
         }
         public XmlNode ToXml()
@@ -241,6 +239,10 @@ namespace TareasPendientes.Blazor.Entities
             for (int i = 0; i < nodeListas.ChildNodes.Count; i++)
                 listas.Add(new Lista(nodeListas.ChildNodes[i]));
             return listas;
+        }
+        public static List<Lista> TienenTarea(Tarea tarea)
+        {
+            return ListasCargadas.Filtra((lst) => lst.Value.EstaTarea(tarea)).ConvertAll<Lista>((lst) => lst.Value);
         }
     }
 

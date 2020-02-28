@@ -8,28 +8,34 @@
 </div>
 <h3>Editar Listas</h3>
 <VisorListas Listas="context.Listas" OnClick="OnListaSeleccionada" />
-<h4>Herencia </h4>
-<div class="Herencia-TareaLista">
-    @if (ListaSeleccionada != null)
-    {
-        <VisorListas Listas="NoHeredadas" OnClick="PonListaEnLaHerencia"/>
-        <VisorListas Listas="Heredadas" OnClick="PreguntaSiQuiereQuitarLaLista"/>
-    }
-</div>
-
-<h4>Eliminar/Ocultar Tarea</h4>
-<div class="EliminarOcultar-TareaLista">
-    @if (ListaSeleccionada != null)
-    {
-        <VisorTareas Lista="ListaSeleccionada" MarcarHecho="false" OnClick="PreguntarSiQuiereEliminarTarea" />
-    }
+@if (ListaSeleccionada != null)
+{
+    <h3>Lista seleccionada: @ListaSeleccionada.Nombre</h3>
+}
+    <h4>Herencia </h4>
+    <div class="Herencia-TareaLista">
+        @if (ListaSeleccionada != null)
+        {
+            <h5>No heredadas</h5>
+            <VisorListas Listas="NoHeredadas" OnClick="PonListaEnLaHerencia" />
+            <h5>Heredadas</h5>
+            <VisorListas Listas="Heredadas" OnClick="PreguntaSiQuiereQuitarLaLista" />
+        }
     </div>
 
-@code {
-    [CascadingParameter] Context context { get; set; }
+    <h4>Eliminar/Ocultar Tarea</h4>
+    <div class="EliminarOcultar-TareaLista">
+        @if (ListaSeleccionada != null)
+        {
+            <VisorTareas Lista="ListaSeleccionada" MostrarCheckHecho="false" OnClick="PreguntarSiQuiereEliminarTarea" />
+        }
+    </div>
+
+    @code {
+[CascadingParameter] Context context { get; set; }
     Lista ListaSeleccionada
     {
-        get;set;
+        get; set;
     }
     List<Lista> NoHeredadas
     {
@@ -49,9 +55,9 @@
     {
         ListaSeleccionada.AddList(lista);
     }
-    void  PreguntaSiQuiereQuitarLaLista(Lista lista)
+    void PreguntaSiQuiereQuitarLaLista(Lista lista)
     {
-        if(this.Pregunta($"Quieres quitar la lista '{lista.Nombre}' de la herencia?"))
+        if (this.Pregunta($"Quieres quitar la lista '{lista.Nombre}' de la herencia?"))
         {
             ListaSeleccionada.RemoveList(lista);
         }
@@ -60,14 +66,15 @@
     {
         ListaSeleccionada = lista;
 
+
     }
     void PreguntarSiQuiereEliminarTarea(long id)
     {
         string aux = ListaSeleccionada.TareasLista.ContainsKey(id) ? "quitar" : "ocultar";
-        if(this.Pregunta($"Quieres {aux} esta tarea de la lista {ListaSeleccionada.Nombre}?"))
+        if (this.Pregunta($"Quieres {aux} esta tarea de la lista {ListaSeleccionada.Nombre}?"))
         {
             ListaSeleccionada.RemoveTarea(id);
         }
     }
 
-}
+    }
