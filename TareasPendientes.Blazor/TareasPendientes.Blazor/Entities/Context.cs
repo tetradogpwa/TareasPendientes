@@ -13,43 +13,51 @@ namespace TareasPendientes.Blazor.Entities
         public List<Categoria> Categorias { get; set; }
         public List<Lista> Listas { get; set; }
 
-        public Context(XmlDocument xmlDocument = null)
+        Context()
         {
-            if (xmlDocument == null)
-            {
-                Categorias = new List<Categoria>();
-                Listas = new List<Lista>();
- 
-            }
-            else
-            {
-                Categorias = Categoria.LoadCategorias(xmlDocument.ChildNodes[0]);
-                Listas = Lista.LoadListas(xmlDocument.ChildNodes[1]);
-            }
+            Categorias = new List<Categoria>();
+            Listas = new List<Lista>();
+        }
+        public Context(XmlDocument xmlDocument = null):this()
+        {
+            LoadXML(xmlDocument);
 
-            if (Categorias.Count == 0)
-            {
-                Categorias.Add(new Categoria("Todas", 0));
-             
-            }
-            if(Listas.Count==0)
-            {
-                Listas.Add(new Lista("Mi primera lista",0));
-            }
+       
+        }
+        public Context(string xmlDocument = null) : this()
+        {
+            LoadXML(xmlDocument);
+
+
         }
         public void LoadXML(string strXML)
         {
             XmlDocument xml = new XmlDocument();
-            xml.LoadXml(strXML);
+            if(strXML!=null)
+              xml.LoadXml(strXML);
             LoadXML(xml);
         }
-        public void LoadXML(XmlDocument xml)
+        public void LoadXML(XmlDocument xmlDocument)
         {
-            Context context;
+    
+
             Lista.ListasCargadas.Clear();
-            context= new Context(xml);
-            Categorias = context.Categorias;
-            Listas = context.Listas;
+            Tarea.TareasCargadas.Clear();
+            if (xmlDocument != null&&xmlDocument.HasChildNodes)
+            {
+                Categorias = Categoria.LoadCategorias(xmlDocument.ChildNodes[0]);
+                Listas = Lista.LoadListas(xmlDocument.ChildNodes[1]);
+
+            }
+            if (Categorias.Count == 0)
+            {
+                Categorias.Add(new Categoria("Todas", 0));
+
+            }
+            if (Listas.Count == 0)
+            {
+                Listas.Add(new Lista("Mi primera lista", 0));
+            }
         }
    
         public XmlDocument ToXmlDocument()
@@ -63,17 +71,6 @@ namespace TareasPendientes.Blazor.Entities
             xml.Normalize();
             return xml;
         }
-        public static Context Load(string strXmlDocument)
-        {
-            XmlDocument xml=null;
-            if (!string.IsNullOrEmpty(strXmlDocument))
-            {
-                xml = new XmlDocument();
-                xml.LoadXml(strXmlDocument);
-                
-            }
-            
-            return new Context(xml);
-        }
+
     }
 }

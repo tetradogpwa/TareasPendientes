@@ -93,8 +93,11 @@ namespace TareasPendientes.Blazor.Entities
 		public static List<Categoria> LoadCategorias(XmlNode nodeCategorias)
 		{
 			List<Categoria> categorias = new List<Categoria>();
-			for (int i = 0; i < nodeCategorias.ChildNodes.Count; i++)
-				categorias.Add(new Categoria(nodeCategorias.ChildNodes[i]));
+			if (nodeCategorias != null && nodeCategorias.HasChildNodes)
+			{
+				for (int i = 0; i < nodeCategorias.ChildNodes.Count; i++)
+					categorias.Add(new Categoria(nodeCategorias.ChildNodes[i]));
+			}
 			return categorias;
 		}
 

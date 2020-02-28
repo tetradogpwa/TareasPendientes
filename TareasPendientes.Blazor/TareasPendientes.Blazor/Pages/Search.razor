@@ -17,18 +17,18 @@
         ListaTemporal = new Lista("temporal",0);
         ListasTarea = new List<Lista>();
     }
-    async Task Buscar()
+    void Buscar()
     {
         ListaTemporal=new Lista(Tarea.HaveToContain(TextoToSearch));
         ListasTarea.Clear();
 
 
     }
-    async Task MostarListasTarea(long idTarea)
+    void MostarListasTarea(long idTarea)
     {
         ListasTarea = Lista.TienenTarea(Tarea.TareasCargadas[idTarea]);
     }
-    async Task MostrarLista(Lista lista)
+    void MostrarLista(Lista lista)
     {
         //cargo el main con esta lista puesta
     }

@@ -34,15 +34,18 @@ namespace TareasPendientes.Blazor.Entities
         }
         public Lista(string nombre, long id = -1)
         {
+            Nombre = nombre;
             if (id < 0)
                 Id = DateTime.Now.Ticks;
             else Id = id;
+
             Tareas = new LlistaOrdenada<long, Tarea>();
-            Nombre = nombre;
+           
             TareasLista = new LlistaOrdenada<long, Tarea>();
             ListasHeredadas = new LlistaOrdenada<long>();
             IdTareasHeredadasOcultas = new LlistaOrdenada<long>();
             FechaTareaHecha = new LlistaOrdenada<long, long>();
+
             if (!ListasCargadas.ContainsKey(Id))
                 ListasCargadas.Add(Id, this);
             ListasHeredadas.Updated += (s, e) => Tareas.Clear();
@@ -263,8 +266,11 @@ namespace TareasPendientes.Blazor.Entities
         public static List<Lista> LoadListas(XmlNode nodeListas)
         {
             List<Lista> listas = new List<Lista>();
-            for (int i = 0; i < nodeListas.ChildNodes.Count; i++)
-                listas.Add(new Lista(nodeListas.ChildNodes[i]));
+            if (nodeListas != null && nodeListas.HasChildNodes)
+            {
+                for (int i = 0; i < nodeListas.ChildNodes.Count; i++)
+                    listas.Add(new Lista(nodeListas.ChildNodes[i]));
+            }
             return listas;
         }
         public static List<Lista> TienenTarea(Tarea tarea)

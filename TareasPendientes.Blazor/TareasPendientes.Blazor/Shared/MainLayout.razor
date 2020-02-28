@@ -1,5 +1,6 @@
 ﻿@inherits LayoutComponentBase
 @inject IDataSave dataSave
+@inject IJSRuntime JS
 
 <div class="sidebar">
     <NavMenu />
@@ -7,7 +8,7 @@
 
 <div class="main">
     <div class="top-row px-4">
-        <button class="btn btn-info float-left " @onclick="@(()=>Save())" disabled="@Disabled">Guardar</button>
+        <button class="btn btn-info float-left " @onclick="@(()=>Save())" >Guardar</button>
         <a href="https://github.com/tetradogpwa/TareasPendientes" target="_blank" class="ml-md-auto">Sobre</a>
 
     </div>
@@ -21,26 +22,31 @@
 
 @code{
     Context context;
-    protected bool Disabled { get; set; } = false;
 
-    protected override void OnInitialized()
+
+    protected override async Task OnInitializedAsync()
     {
-        string data = null;//dataSave.Load();
+        string data;
+
+        Console.WriteLine("Cargando...MainLayout");
+        data= await dataSave.Load(JS);
+
+        context =new Context(data);
         base.OnInitialized();
-        context = Context.Load(data);
+       
+        Console.WriteLine("MainLayout Cargado  :)");
     }
 
-    public void Save()
+    public async Task Save()
     {
         try
         {
-            Disabled = true;
-            dataSave.Save(context.ToXmlDocument().OuterXml);
+            Console.WriteLine("Guardando...BD");
+            await dataSave.Save(JS,context.ToXmlDocument().OuterXml);
+            Console.WriteLine("BD Guardada  :D");
+            await JS.MostrarMensajeAsync("Se ha guardado, correctamente");
         }
-        catch { }
-        finally
-        {
-            Disabled = false;
-        }
+        catch {await JS.MostrarMensajeAsync("No se ha podido guardado, correctamente...si quieres guardar la información ves a Configuracion y descarga el archivo xml"); }
+
     }
 }

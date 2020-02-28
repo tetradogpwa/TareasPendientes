@@ -6,8 +6,8 @@
 }
 else
 {
-    <div class="float-left ParteListas LaMitadDeEspacio">
-        <select class="TodoElEspacio" @onchange="@((s)=>posCategoria=(int)s.Value)" >
+    <div class="float-left  LaMitadDeEspacio" id="ParteListas" >
+        <select class="TodoElEspacio" @onchange="@((s)=> { posCategoria = s != null ? ((int)s.Value) : 0; })" >
             @for (int i = 0; i < context.Categorias.Count; i++)
             {
                 <option class="TodoElEspacio" value="@i">@context.Categorias[i].Nombre</option>
@@ -21,11 +21,11 @@ else
             </div>
         </VisorListas>
     </div>
-    <div class="float-right ParteTareas LaMitadDeEspacio">
+    <div class="float-right LaMitadDeEspacio" id="ParteTareas">
         <input class="TextBox-NombreLista TodoElEspacio" type="text" @bind="@ActualList.Nombre" />
         <div>
             <label><input type="checkbox" @bind="editMode" />Editar</label>
-            <button class="Add-Tarea btn btn-light" @onclick="AddTarea" value="+" disabled="@(!HayLista)">+</button>
+            <button class="btn btn-light" id="Add-Tarea" @onclick="AddTarea" value="+" disabled="@(!HayLista)">+</button>
         </div>
         <VisorTareas Lista="@ActualList" EditMode="editMode" />
 
@@ -41,12 +41,16 @@ else
     bool editMode = false;
     Categoria Categoria
     {
-        get { return context.Categorias[posCategoria]; }
+        get {
+            Console.WriteLine($"solicitando categoria {posCategoria}");
+            return context.Categorias[posCategoria];
+        }
     }
     List<Lista> Listas
     {
         get
         {
+            Console.WriteLine($"solicitando listas categoria {posCategoria}");
             return Categoria.GetListas();
         }
     }
@@ -57,9 +61,19 @@ else
     bool HayLista => ActualList != null;
     protected override void OnInitialized()
     {
-        base.OnInitialized();
+
+        Console.WriteLine("Cargando...Main");
+        
         posCategoria = 0;
-        ActualList =  Categoria.GetListaAt(0);
+        if (context != null && context.Listas.Count != 0)
+        {
+            ActualList = Categoria.GetListaAt(0);
+            Console.WriteLine($"Lista cargada {ActualList.Nombre}:{ActualList.Id}");
+        }
+        else Console.WriteLine("No se ha cargado...aun");
+
+        base.OnInitialized();
+        Console.WriteLine("Main Cargado  :D");
     }
 
     void AddList()
