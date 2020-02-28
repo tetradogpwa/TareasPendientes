@@ -22,12 +22,13 @@ else
         </VisorListas>
     </div>
     <div class="float-right ParteTareas LaMitadDeEspacio">
-        <input class="TextBox-NombreLista TodoElEspacio" type="text"  @bind="@ActualList.Nombre"/>
-        <VisorTareas Lista="@ActualList" EditMode="editMode" />
+        <input class="TextBox-NombreLista TodoElEspacio" type="text" @bind="@ActualList.Nombre" />
         <div>
             <label><input type="checkbox" @bind="editMode" />Editar</label>
             <button class="Add-Tarea btn btn-light" @onclick="AddTarea" value="+" disabled="@(!HayLista)">+</button>
         </div>
+        <VisorTareas Lista="@ActualList" EditMode="editMode" />
+
     </div>
 }
 

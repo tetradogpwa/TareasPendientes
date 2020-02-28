@@ -1,5 +1,5 @@
 ﻿@page "/configuration"
-
+@inject IJSRuntime JS
 <h3>Configuration</h3>
 
 <h2>Exportar BD</h2>
@@ -10,11 +10,11 @@
 
 @code {
     [CascadingParameter]  Context context { get; set; }
-    void ExportarBD()
+    async Task ExportarBD()
     {
         string data=context.ToXmlDocument().OuterXml;
         string fileName = "BD_TareasPendientes " + DateTime.Now.ToString("d-M-yyyy HH mm ss") + ".xml";
-        this.DownloadFile(fileName, data, "application/xml");
+        await JS.DownloadFileAsync(fileName, data, "application/xml");
      
 
     }

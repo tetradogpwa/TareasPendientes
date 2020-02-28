@@ -1,5 +1,5 @@
 ﻿@page "/organitze"
-
+@inject IJSRuntime JS
 <h3>Categorias</h3>
 <div class="EditarListaCategorias">
     @*añadir/editar nombre Categoria*@
@@ -12,27 +12,38 @@
 {
     <h3>Lista seleccionada: @ListaSeleccionada.Nombre</h3>
 }
-    <h4>Herencia </h4>
-    <div class="Herencia-TareaLista">
-        @if (ListaSeleccionada != null)
+<h4>Herencia </h4>
+<div class="Herencia-TareaLista">
+    @if (ListaSeleccionada != null)
+    {
+        @if (NoHeredadas.Count > 0)
         {
             <h5>No heredadas</h5>
             <VisorListas Listas="NoHeredadas" OnClick="PonListaEnLaHerencia" />
-            <h5>Heredadas</h5>
-            <VisorListas Listas="Heredadas" OnClick="PreguntaSiQuiereQuitarLaLista" />
         }
-    </div>
-
-    <h4>Eliminar/Ocultar Tarea</h4>
-    <div class="EliminarOcultar-TareaLista">
-        @if (ListaSeleccionada != null)
+        @if (Heredadas.Count > 0)
         {
-            <VisorTareas Lista="ListaSeleccionada" MostrarCheckHecho="false" OnClick="PreguntarSiQuiereEliminarTarea" />
-        }
-    </div>
+             <h5>Heredadas</h5>
+             <VisorListas Listas="Heredadas" OnClick="PreguntaSiQuiereQuitarLaLista" />
+            }
+     }
+</div>
 
-    @code {
-[CascadingParameter] Context context { get; set; }
+<h4>Eliminar/Ocultar Tarea</h4>
+<div class="EliminarOcultar-TareaLista">
+    @if (ListaSeleccionada != null)
+    {
+        <VisorTareas Lista="ListaSeleccionada" MostrarCheckHecho="false" OnClick="PreguntarSiQuiereEliminarTarea" />
+    }
+</div>
+<h4>Desocultar Tarea heredada</h4>
+@if (ListaSeleccionada != null&&ListaSeleccionada.IdTareasHeredadasOcultas.Count != 0)
+{
+    <VisorTareas Lista="TareasOcultas" MostrarCheckHecho="false" OnClick="MostrarTareaHeredada" />
+}
+
+@code {
+    [CascadingParameter] Context context { get; set; }
     Lista ListaSeleccionada
     {
         get; set;
@@ -51,15 +62,27 @@
             return ListaSeleccionada.GetListasHeredadas();
         }
     }
+    Lista TareasOcultas
+    {
+        get
+        {
+            return new Lista(ListaSeleccionada.IdTareasHeredadasOcultas.GetValues());
+        }
+    }
+    void MostrarTareaHeredada(long id)
+    {
+        ListaSeleccionada.IdTareasHeredadasOcultas.Remove(id);
+    }
     void PonListaEnLaHerencia(Lista lista)
     {
         ListaSeleccionada.AddList(lista);
     }
-    void PreguntaSiQuiereQuitarLaLista(Lista lista)
+    async Task PreguntaSiQuiereQuitarLaLista(Lista lista)
     {
-        if (this.Pregunta($"Quieres quitar la lista '{lista.Nombre}' de la herencia?"))
+        if (await JS.PreguntaAsync($"Quieres quitar la lista '{lista.Nombre}' de la herencia?"))
         {
             ListaSeleccionada.RemoveList(lista);
+         
         }
     }
     void OnListaSeleccionada(Lista lista)
@@ -68,13 +91,14 @@
 
 
     }
-    void PreguntarSiQuiereEliminarTarea(long id)
+    async Task PreguntarSiQuiereEliminarTarea(long id)
     {
-        string aux = ListaSeleccionada.TareasLista.ContainsKey(id) ? "quitar" : "ocultar";
-        if (this.Pregunta($"Quieres {aux} esta tarea de la lista {ListaSeleccionada.Nombre}?"))
+   
+        if (!ListaSeleccionada.TareasLista.ContainsKey(id)||await JS.PreguntaAsync($"Quieres eliminar esta tarea de la lista '{ListaSeleccionada.Nombre}'  ?"))
         {
             ListaSeleccionada.RemoveTarea(id);
+   
         }
     }
 
-    }
+}

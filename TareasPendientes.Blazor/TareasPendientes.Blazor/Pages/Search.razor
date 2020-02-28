@@ -19,11 +19,9 @@
     }
     async Task Buscar()
     {
-        List<Tarea> tareas = Tarea.HaveToContain(TextoToSearch);
-        ListaTemporal=new Lista("temporal",0);
+        ListaTemporal=new Lista(Tarea.HaveToContain(TextoToSearch));
         ListasTarea.Clear();
-        for (int i = 0; i < tareas.Count; i++)
-            ListaTemporal.TareasLista.Add(tareas[i].Id, tareas[i]);
+
 
     }
     async Task MostarListasTarea(long idTarea)

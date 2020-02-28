@@ -10,31 +10,29 @@ namespace TareasPendientes.Blazor.Helpers
 {
     public static class ExtensionIJS
     {
-        [Inject] static IJSRuntime JS { get; set; }
-
-        public static void MostrarMensaje(this object obj,string mensaje)
+        
+        public static async Task MostrarMensajeAsync(this IJSRuntime js, string mensaje)
         {
-            JS.InvokeVoidAsync("alert", mensaje).Wait();
+          await  js.InvokeVoidAsync("alert", mensaje);
         }
-        public static void DownloadFile(this object obj,string fileName,object data,string metaType)
+        public static async Task DownloadFileAsync(this  IJSRuntime js, string fileName,object data,string metaType)
         {
-             JS.InvokeVoidAsync("FileSaveAs", fileName, data, metaType).Wait();
+           await js.InvokeVoidAsync("FileSaveAs", fileName, data, metaType);
             //da problemas pone que no se ha podido descargar...
         }
-        public static async Task SaveLocalStorageAsync(this object obj, string id, string data)
+        public static async Task SaveLocalStorageAsync(this IJSRuntime js, string id, string data)
         {
-            await JS.InvokeVoidAsync("SaveLocalStorage", id, data);
+            await js.InvokeVoidAsync("SaveLocalStorage", id, data);
         }
 
-        public static async Task<string> LoadLocalStorageAsync(this object obj, string id)
+        public static async Task<string> LoadLocalStorageAsync(this IJSRuntime js, string id)
         {
-            return await JS.InvokeAsync<string>("LoadLocalStorage", id);
+            return await js.InvokeAsync<string>("LoadLocalStorage", id);
         }
-        public static bool Pregunta(this object obj, string mensaje)
+        public static async ValueTask<bool> PreguntaAsync(this IJSRuntime js, string mensaje)
         {
-            ValueTask<bool> respuesta = JS.InvokeAsync<bool>("confirm", mensaje);
+            return await js.InvokeAsync<bool>("confirm", mensaje);
 
-            return respuesta.GetResult();
         }
 
 
@@ -45,30 +43,7 @@ namespace TareasPendientes.Blazor.Helpers
 
            return encoding.GetString( (await file.ReadAllAsync()).ToArray());
         }
-        public static string LoadString(this IFileListEntry file, System.Text.Encoding encoding = null)
-        {
-            return file.LoadStringAsync(encoding).GetResult();
-        }
-
-  
-
-        public static void Wait<T>(this ValueTask<T> task)
-        {
-            task.AsTask().Wait();
-        }
-        public static void Wait(this ValueTask task)
-        {
-            task.AsTask().Wait();
-        }
-        public static T GetResult<T>(this ValueTask<T> task)
-        {
-            task.Wait();
-            return task.Result;
-        }
-        public static T GetResult<T>(this Task<T> task)
-        {
-            task.Wait();
-            return task.Result;
-        }
+    
+ 
     }
 }

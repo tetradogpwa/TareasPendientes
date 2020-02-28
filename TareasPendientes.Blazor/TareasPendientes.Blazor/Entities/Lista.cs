@@ -22,6 +22,16 @@ namespace TareasPendientes.Blazor.Entities
         public LlistaOrdenada<long> ListasHeredadas { get; private set; }
         public LlistaOrdenada<long> IdTareasHeredadasOcultas { get; private set; }
         public LlistaOrdenada<long, long> FechaTareaHecha { get; private set; }//IdTarea,Ticks
+        public Lista(IList<Tarea> tareas) : this("temporal", 0)
+        {
+            for (int i = 0; i < tareas.Count; i++)
+                AddTarea(tareas[i]);
+        }
+        public Lista(IList<long> tareas) : this("temporal", 0)
+        {
+            for (int i = 0; i < tareas.Count; i++)
+                AddTarea(Tarea.TareasCargadas[tareas[i]]);
+        }
         public Lista(string nombre, long id = -1)
         {
             if (id < 0)
@@ -82,43 +92,60 @@ namespace TareasPendientes.Blazor.Entities
             if (noSeHereda)//mirar que se sea padre de estas...si se añade el hijo al padre
             {
                 ListasHeredadas.Add(listaAHeredar.Id);
+                Tareas.Clear();
             }
             return noSeHereda;
         }
         public bool RemoveList(Lista listaAEliminar)
         {
+            Tareas.Clear();
             return ListasHeredadas.Remove(listaAEliminar.Id);
         }
         public Tarea AddTarea(string textTarea = "")
         {
             Tarea tarea = new Tarea(textTarea);
-            TareasLista.Add(tarea.Id,tarea);
-            Tareas.Add(tarea.Id, tarea);
+            AddTarea(tarea);
             return tarea;
+        }
+        public void AddTarea(Tarea tarea)
+        {
+            TareasLista.Add(tarea.Id, tarea);
+            Tareas.Add(tarea.Id, tarea);
         }
         public bool RemoveTarea(Tarea tarea)
         {
-            bool removed = TareasLista.Remove(tarea.Id);
-            if (!removed && !IdTareasHeredadasOcultas.ContainsKey(tarea.Id) && EstaTarea(tarea))
+            bool removed= TareasLista.ContainsKey(tarea.Id);
+            if (removed)
+            {
+                TareasLista.Remove(tarea.Id);
+                Tareas.Remove(tarea.Id);
+            }
+            else if (!IdTareasHeredadasOcultas.ContainsKey(tarea.Id) && EstaTarea(tarea))
             {
                 IdTareasHeredadasOcultas.Add(tarea.Id);
-
+                Tareas.Remove(tarea.Id);
             }
-            if(removed)
-              Tareas.Remove(tarea.Id);
+    
+            
             return removed;
         }
         public bool RemoveTarea(long idTarea)
         {
-            return RemoveTarea(Tareas[idTarea]);
+            bool hecho = false;
+            RefreshTareas();
+            if(Tareas.ContainsKey(idTarea)&& !IdTareasHeredadasOcultas.ContainsKey(idTarea))
+              hecho= RemoveTarea(Tareas[idTarea]);
+            return hecho;
         }
         public void TareaHecha(Tarea tarea)
         {
-            FechaTareaHecha.Add(tarea.Id, DateTime.Now.Ticks);
+            if (!FechaTareaHecha.ContainsKey(tarea.Id))
+                FechaTareaHecha.Add(tarea.Id, DateTime.Now.Ticks);
         }
         public void TareaNoHecha(Tarea tarea)
         {
-            FechaTareaHecha.Remove(tarea.Id);
+            if(FechaTareaHecha.ContainsKey(tarea.Id))
+             FechaTareaHecha.Remove(tarea.Id);
         }
         private bool EstaTarea(Tarea tarea)
         {

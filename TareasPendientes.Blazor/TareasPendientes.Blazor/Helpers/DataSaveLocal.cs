@@ -9,11 +9,12 @@ namespace TareasPendientes.Blazor.Helpers
 {
     public class DataSaveLocal : IDataSave
     {
+        [Inject] IJSRuntime JS { get; set; }
         const string ID = "BD_TareasPendientes";
 
         string IDataSave.Load()
         {
-            Task<string> load =this.LoadLocalStorageAsync(ID);
+            Task<string> load = JS.LoadLocalStorageAsync(ID);
             if(load.Status==TaskStatus.WaitingToRun)
              load.Start();
             load.Wait();
@@ -22,7 +23,7 @@ namespace TareasPendientes.Blazor.Helpers
 
         void IDataSave.Save(string dataXML)
         {
-            Task save = this.SaveLocalStorageAsync(ID,dataXML);
+            Task save = JS.SaveLocalStorageAsync(ID,dataXML);
             if (save.Status == TaskStatus.WaitingToRun)
                 save.Start();
             save.Wait();

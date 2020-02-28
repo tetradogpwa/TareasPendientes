@@ -1,10 +1,10 @@
 ﻿@if (Lista != null)
 {
-    i = 0;
+  
     @foreach (Tarea tarea in Lista)
     { 
-        <VisorTarea Class="@(i % 2 == 0 ? "par" : "impar")" IdTarea="tarea.Id" Lista="Lista" EditMode="EditMode" OnClick="OnClick" MostrarCheckHecho="MostrarCheckHecho"/>
-        i++;
+        <VisorTarea Class="@(GetNext() % 2 == 0 ? "par" : "impar")" IdTarea="tarea.Id" Lista="Lista" EditMode="EditMode" OnClick="OnClick" MostrarCheckHecho="MostrarCheckHecho"/>
+       
     }
 }
 
@@ -14,4 +14,10 @@
     [Parameter] public EventCallback<long> OnClick { get; set; }
     [Parameter] public bool MostrarCheckHecho { get; set; } = true;
     int i;
+    protected override bool ShouldRender()
+    {
+        i = -1;
+        return base.ShouldRender();
+    }
+    int GetNext() => ++i;
 }
