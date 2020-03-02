@@ -8,7 +8,8 @@
 
 <div class="main">
     <div class="top-row px-4">
-        <button class="btn btn-info float-left " @onclick="@(()=>Save())" >Guardar</button>
+
+        <button class="btn btn-info float-left " @onclick="@(() => Save())" >Guardar</button>
         <a href="https://github.com/tetradogpwa/TareasPendientes" target="_blank" class="ml-md-auto">Sobre</a>
 
     </div>
@@ -28,25 +29,26 @@
     {
         string data;
 
-        Console.WriteLine("Cargando...MainLayout");
         data= await dataSave.Load(JS);
-
         context =new Context(data);
         base.OnInitialized();
-       
-        Console.WriteLine("MainLayout Cargado  :)");
+
     }
 
     public async Task Save()
     {
-        try
-        {
-            Console.WriteLine("Guardando...BD");
-            await dataSave.Save(JS,context.ToXmlDocument().OuterXml);
-            Console.WriteLine("BD Guardada  :D");
-            await JS.MostrarMensajeAsync("Se ha guardado, correctamente");
-        }
-        catch {await JS.MostrarMensajeAsync("No se ha podido guardado, correctamente...si quieres guardar la información ves a Configuracion y descarga el archivo xml"); }
+        if (context != null) {
+            try
+            {
+                await dataSave.Save(JS, context.ToXmlDocument().OuterXml);
+                await JS.MostrarMensajeAsync("Se ha guardado, correctamente");
+            }
+            catch { await JS.MostrarMensajeAsync("No se ha podido guardado, correctamente...si quieres guardar la información ves a Configuracion y descarga el archivo xml"); }
 
+        }
+        else
+        {
+            await JS.MostrarMensajeAsync("Espere un momento, aun se está cargando.");
+        }
     }
 }

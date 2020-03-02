@@ -7,27 +7,27 @@
 else
 {
     <div class="float-left  LaMitadDeEspacio" id="ParteListas" >
-        <select class="TodoElEspacio" @onchange="@((s)=> { posCategoria = s != null ? ((int)s.Value) : 0; })" >
+        <select class="TodoElEspacio" @bind="@context.Main.IndexCategoria" >
             @for (int i = 0; i < context.Categorias.Count; i++)
             {
                 <option class="TodoElEspacio" value="@i">@context.Categorias[i].Nombre</option>
             }
         </select>
         <br/>
-        <VisorListas Listas="Listas" OnClick="MostrarLista">
+        <VisorListas Listas="@context.Main.Listas" OnClick="@MostrarLista">
             <div>
-                <input class="TodoElEspacio" type="text" @bind="nameList"   />
-                <button class="btn btn-light" @onclick="AddList" value="Add" disabled="@String.IsNullOrEmpty(nameList)" >+</button>
+                <input class="TodoElEspacio" type="text" @bind="context.Main.NameList"   />
+                <button class="btn btn-light" @onclick="@AddList" value="Add" disabled="@String.IsNullOrEmpty(context.Main.NameList)" >+</button>
             </div>
         </VisorListas>
     </div>
     <div class="float-right LaMitadDeEspacio" id="ParteTareas">
-        <input class="TextBox-NombreLista TodoElEspacio" type="text" @bind="@ActualList.Nombre" />
+        <input class="TextBox-NombreLista TodoElEspacio" type="text" @bind="@context.Main.ListaActual.Nombre" />
         <div>
-            <label><input type="checkbox" @bind="editMode" />Editar</label>
-            <button class="btn btn-light" id="Add-Tarea" @onclick="AddTarea" value="+" disabled="@(!HayLista)">+</button>
+            <label><input type="checkbox" @bind="context.Main.EditMode" />Editar</label>
+            <button class="btn btn-light" id="Add-Tarea" @onclick="@AddTarea" value="+" disabled="@(!context.Main.HayLista)">+</button>
         </div>
-        <VisorTareas Lista="@ActualList" EditMode="editMode" />
+        <VisorTareas Lista="@context.Main.ListaActual" EditMode="@context.Main.EditMode" />
 
     </div>
 }
@@ -36,59 +36,21 @@ else
 @code {
 
     [CascadingParameter]  Context context { get; set; }
-    string nameList = null;
-    int posCategoria;
-    bool editMode = false;
-    Categoria Categoria
-    {
-        get {
-            Console.WriteLine($"solicitando categoria {posCategoria}");
-            return context.Categorias[posCategoria];
-        }
-    }
-    List<Lista> Listas
-    {
-        get
-        {
-            Console.WriteLine($"solicitando listas categoria {posCategoria}");
-            return Categoria.GetListas();
-        }
-    }
-    Lista ActualList
-    {
-        get;set;
-    }
-    bool HayLista => ActualList != null;
-    protected override void OnInitialized()
-    {
 
-        Console.WriteLine("Cargando...Main");
-        
-        posCategoria = 0;
-        if (context != null && context.Listas.Count != 0)
-        {
-            ActualList = Categoria.GetListaAt(0);
-            Console.WriteLine($"Lista cargada {ActualList.Nombre}:{ActualList.Id}");
-        }
-        else Console.WriteLine("No se ha cargado...aun");
-
-        base.OnInitialized();
-        Console.WriteLine("Main Cargado  :D");
-    }
 
     void AddList()
     {
-        context.Listas.Add(new Lista(nameList));
-        nameList = null;
+        context.Listas.Add(new Lista(context.Main.NameList));
+        context.Main.NameList = null;
     }
     void AddTarea()
     {
-        if (ActualList != null)
-            ActualList.AddTarea();
+        if (context.Main.HayLista)
+            context.Main.ListaActual.AddTarea();
     }
     void MostrarLista(Lista lista)
     {
-        ActualList = lista;
+        context.Main.ListaActual = lista;
     }
 
 }

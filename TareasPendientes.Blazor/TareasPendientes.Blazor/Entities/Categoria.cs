@@ -12,7 +12,7 @@ namespace TareasPendientes.Blazor.Entities
 	public class Categoria
 
 	{
-		public LlistaOrdenada<long> Listas { get; set; }
+		public LlistaOrdenada<long> Listas { get; private set; }
 		public string Nombre { get; set; }
 		public long Id { get; set; }
 

@@ -1,31 +1,44 @@
 ﻿@page "/configuration"
 @inject IJSRuntime JS
-<h3>Configuration</h3>
+@if (context == null)
+{
+    <text>Cargando...</text>
+}
+else
+{
+    <h3>Configuration</h3>
 
-<h2>Exportar BD</h2>
-<input type="button" value="Download" @onclick="ExportarBD"/>
+    <h2>Exportar BD</h2>
+    <input type="button" value="Download" @onclick="@ExportarBD" />
 
-<h2>Importar BD</h2>
-<InputFile OnChange="ImportarBD" />
-
+    <h2>Importar BD</h2>
+    <InputFile OnChange="@ImportarBD" />
+}
 @code {
-    [CascadingParameter]  Context context { get; set; }
+    [CascadingParameter] Context context { get; set; }
     async Task ExportarBD()
     {
-        string data=context.ToXmlDocument().OuterXml;
+        string data = context.ToXmlDocument().OuterXml;
         string fileName = "BD_TareasPendientes " + DateTime.Now.ToString("d-M-yyyy HH mm ss") + ".xml";
         await JS.DownloadFileAsync(fileName, data, "application/xml");
-     
+
 
     }
     async Task ImportarBD(IFileListEntry[] files)
     {
-        IFileListEntry file=files.FirstOrDefault();
+        IFileListEntry file = files.FirstOrDefault();
         string data;
         if (file != null)
         {
-            data = await file.LoadStringAsync();
-            context.LoadXML(data);
+            try
+            {
+                data = await file.LoadStringAsync();
+                context.LoadXML(data);
+            }
+            catch (Exception ex)
+            {
+                await JS.MostrarMensajeAsync(ex.Message);
+            }
         }
     }
 
