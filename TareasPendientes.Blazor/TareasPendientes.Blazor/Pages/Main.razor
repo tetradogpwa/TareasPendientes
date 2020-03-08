@@ -1,25 +1,27 @@
 ﻿@page "/"
 
-@if(context==null)
+@inject NavigationManager Nav
+@if (context == null)
 {
-    <text>Cargando...</text>
+    <Cargando />
 }
 else
 {
-    <div class="float-left  LaMitadDeEspacio" id="ParteListas" >
-        <select class="TodoElEspacio" @bind="@context.Main.IndexCategoria" >
+    <div class="float-left  LaMitadDeEspacio" id="ParteListas">
+        <select class="TodoElEspacio" @bind="@context.Main.IndexCategoria">
             @for (int i = 0; i < context.Categorias.Count; i++)
             {
                 <option class="TodoElEspacio" value="@i">@context.Categorias[i].Nombre</option>
             }
         </select>
-        <br/>
-        <VisorListas Listas="@context.Main.Listas" OnClick="@MostrarLista">
+        <br />
+        <div>
+            <VisorListas Listas="@context.Main.Listas" OnClick="@MostrarLista" />
             <div>
-                <input class="TodoElEspacio" type="text" @bind="context.Main.NameList"   />
-                <button class="btn btn-light" @onclick="@AddList" value="Add" disabled="@String.IsNullOrEmpty(context.Main.NameList)" >+</button>
+                <input class="TodoElEspacio" type="text" @bind-value="context.Main.NameList" @onkeypress="@CreateListOnKeyPress" />
+
             </div>
-        </VisorListas>
+        </div>
     </div>
     <div class="float-right LaMitadDeEspacio" id="ParteTareas">
         <input class="TextBox-NombreLista TodoElEspacio" type="text" @bind="@context.Main.ListaActual.Nombre" />
@@ -35,12 +37,16 @@ else
 
 @code {
 
-    [CascadingParameter]  Context context { get; set; }
-
+    [CascadingParameter] Context context { get; set; }
+    void CreateListOnKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !String.IsNullOrEmpty(context.Main.NameList) && !String.IsNullOrWhiteSpace(context.Main.NameList))
+            AddList();
+    }
 
     void AddList()
     {
-        context.Listas.Add(new Lista(context.Main.NameList));
+        context.Listas.Add(new Lista(context.Main.NameList.Trim()));
         context.Main.NameList = null;
     }
     void AddTarea()
@@ -51,6 +57,7 @@ else
     void MostrarLista(Lista lista)
     {
         context.Main.ListaActual = lista;
+        Nav.NavigateTo("/");
     }
 
 }

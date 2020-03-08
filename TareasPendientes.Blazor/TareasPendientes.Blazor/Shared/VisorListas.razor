@@ -7,14 +7,9 @@
     }
 
 }
-@*Por si quieren poner un boton para añadir o un check box para borrar al hacer click *@
-@if (ChildContent != null)
-{
-    @ChildContent
-}
+
 
 @code {
     [Parameter] public List<Lista> Listas { get; set; }
     [Parameter] public EventCallback<Lista> OnClick { get; set; }
-    [Parameter] public RenderFragment ChildContent { get; set; }
 }

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace TareasPendientes.Blazor.Helpers
+namespace TareasPendientes.Helpers
 {
     public interface IDataSave
     {

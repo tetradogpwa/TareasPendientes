@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 
-namespace TareasPendientes.Blazor.Entities
+namespace TareasPendientes.Entities
 {
     public class Tarea {
 

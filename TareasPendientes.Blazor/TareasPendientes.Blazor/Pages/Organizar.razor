@@ -2,7 +2,7 @@
 @inject IJSRuntime JS
 @if (context == null)
 {
-    <text>Cargando...</text>
+  <Cargando/>
 }
 else
 {
@@ -76,12 +76,14 @@ else
     }
     async Task PreguntarSiQuiereEliminarTarea(long id)
     {
-
+        
         if (!context.Organizar.ListaSeleccionada.TareasLista.ContainsKey(id) || await JS.PreguntaAsync($"Quieres eliminar esta tarea de la lista '{ context.Organizar.ListaSeleccionada.Nombre}'  ?"))
         {
             context.Organizar.ListaSeleccionada.RemoveTarea(id);
+            ShouldRender();
 
         }
+
     }
 
 }

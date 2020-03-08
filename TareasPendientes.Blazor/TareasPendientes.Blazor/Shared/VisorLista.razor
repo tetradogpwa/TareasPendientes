@@ -1,4 +1,5 @@
-﻿<label @onclick="@(()=>OnClick.InvokeAsync(Lista))">@Lista.Nombre</label>
+﻿
+<label @onclick="@(()=>OnClick.InvokeAsync(Lista))">@Lista.Nombre</label>
 
 @code {
         [Parameter] public Lista Lista { get; set; }

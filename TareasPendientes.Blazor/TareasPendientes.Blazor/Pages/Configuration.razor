@@ -1,8 +1,13 @@
 ﻿@page "/configuration"
+
+@using Blazor.FileReader
+
+@inject IFileReaderService  fileReaderService
 @inject IJSRuntime JS
+
 @if (context == null)
 {
-    <text>Cargando...</text>
+    <Cargando />
 }
 else
 {
@@ -12,10 +17,11 @@ else
     <input type="button" value="Download" @onclick="@ExportarBD" />
 
     <h2>Importar BD</h2>
-    <InputFile OnChange="@ImportarBD" />
+    <input type="file" @ref="inputImportar" @onchange="@ImportarBD" accept=".xml" />
 }
 @code {
     [CascadingParameter] Context context { get; set; }
+    ElementReference inputImportar;
     async Task ExportarBD()
     {
         string data = context.ToXmlDocument().OuterXml;
@@ -24,15 +30,15 @@ else
 
 
     }
-    async Task ImportarBD(IFileListEntry[] files)
+    async Task ImportarBD()
     {
-        IFileListEntry file = files.FirstOrDefault();
+        var file = (await fileReaderService.CreateReference(inputImportar).EnumerateFilesAsync()).FirstOrDefault();
         string data;
         if (file != null)
         {
             try
             {
-                data = await file.LoadStringAsync();
+                data = await file.ReadStringAsync();
                 context.LoadXML(data);
             }
             catch (Exception ex)

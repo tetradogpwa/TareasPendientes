@@ -1,12 +1,14 @@
-﻿using BlazorInputFile;
+﻿
+using Blazor.FileReader;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 //incluir LocalStorage.js,ImportExport.js en wwwroot
-namespace TareasPendientes.Blazor.Helpers
+namespace TareasPendientes.Helpers
 {
     public static class ExtensionIJS
     {
@@ -36,14 +38,41 @@ namespace TareasPendientes.Blazor.Helpers
         }
 
 
-        public static async Task<string> LoadStringAsync(this IFileListEntry file,System.Text.Encoding encoding= null)
+        public static async Task<string> ReadStringAsync(this IFileReference file,System.Text.Encoding encoding= null)
         {
             if (encoding == null)
                 encoding = System.Text.ASCIIEncoding.ASCII;
 
-           return encoding.GetString( (await file.ReadAllAsync()).ToArray());
+           return encoding.GetString( (await file.Read()));
+        }
+        public static  byte[] ReadToEnd(this MemoryStream ms)
+        {
+            byte[] bytes = new byte[ms.Length];
+            ms.Read(bytes, 0, bytes.Length);
+            return bytes;
         }
     
- 
+            public static async Task<byte[]> Read(this IFileReference fileReader, int buffer = 4 * 1024)
+            {
+                MemoryStream ms = null;
+                byte[] bytesFile = null;
+                try
+                {
+                    ms = await fileReader.CreateMemoryStreamAsync(buffer);
+
+                    bytesFile = new byte[ms.Length];
+                    ms.Read(bytesFile, 0, (int)ms.Length);
+                }
+                finally
+                {
+                    if (ms != null)
+                        ms.Close();
+
+                }
+                return bytesFile;
+            }
+        
+
+
     }
 }

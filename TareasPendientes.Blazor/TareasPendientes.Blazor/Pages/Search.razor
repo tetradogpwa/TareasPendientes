@@ -1,13 +1,13 @@
 ﻿@page "/search"
 @if (context == null)
 {
-    <text>Cargando...</text>
+    <Cargando/>
 }
 else
 {
     <h3>Search</h3>
-    <input class="TodoElEspacio" type="text" @bind="@context.Search.TextoToSearch" />
-    <button class="btn btn-info" @onclick="@(() => Buscar())" disabled="@(string.IsNullOrEmpty(context.Search.TextoToSearch))">Buscar</button>
+    <input class="TodoElEspacio" type="text"  @onkeypress="@OnKeyPressBuscar" />
+    <button class="btn btn-info" @onclick="@(() => Buscar())">Buscar</button>
     @if (@context.Search.ListaTemporal.TareasLista.Count > 0)
     {
         <h4>Tareas que contienen el texto a buscar</h4>
@@ -18,7 +18,12 @@ else
 }
 @code {
     [CascadingParameter] Context context { get; set; }
-
+    void OnKeyPressBuscar(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter"){
+            Buscar();
+        } 
+    }
     void Buscar()
     {
         context.Search.ListaTemporal = new Lista(Tarea.HaveToContain(context.Search.TextoToSearch));

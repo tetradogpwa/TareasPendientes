@@ -6,21 +6,35 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 
-namespace TareasPendientes.Blazor.Entities
+namespace TareasPendientes.Entities
 {
     public class Context
     {
         public class ContextMain
         {
             private int indexCategoria;
+            private Lista listaActual;
 
-            public int IndexCategoria { get => indexCategoria; set { indexCategoria = value<0?0:value>=Context.Categorias.Count? Context.Categorias.Count -1: value; } }
+            public int IndexCategoria
+            {
+                get => indexCategoria;
+                set
+                {
+                    Console.WriteLine($"{value}/{Context.Categorias.Count}");
+                    if (value < 0)
+                        value = 0;
+                    else if (value >= Context.Categorias.Count)
+                        value = Context.Categorias.Count - 1;
+                    indexCategoria = value;
+                }
+            }
             Context Context { get; set; }
             public Categoria Categoria
             {
 
                 get
                 {
+
                     return Context.Categorias[IndexCategoria];
                 }
             }
@@ -31,10 +45,30 @@ namespace TareasPendientes.Blazor.Entities
                     return Categoria.GetListas();
                 }
             }
-            public Lista ListaActual { get; set; }
+            public Lista ListaActual
+            {
+                get => listaActual;
+                set
+                {
+                    bool encontrado = false;
+                    listaActual = value;
+
+                    if (listaActual != null && !Categoria.Listas.ContainsKey(listaActual.Id))
+                    {
+                        for (int i = 0; i < Context.Categorias.Count && !encontrado; i++)
+                        {
+                            if (Context.Categorias[i].Listas.ContainsKey(listaActual.Id))
+                            {
+                                encontrado = true;
+                                IndexCategoria = i;
+                            }
+                        }
+                    }
+
+                }
+            }
             public bool HayLista => ListaActual != null;
             public string NameList { get; set; } = null;
-
             public bool EditMode { get; set; } = false;
             public ContextMain(Context context)
             {
@@ -44,7 +78,7 @@ namespace TareasPendientes.Blazor.Entities
             public void Clear()
             {
                 IndexCategoria = 0;
-                ListaActual = null;
+                ListaActual = Categoria.GetListaAt(0);
 
             }
         }
@@ -145,9 +179,7 @@ namespace TareasPendientes.Blazor.Entities
 
             Lista.ListasCargadas.Clear();
             Tarea.TareasCargadas.Clear();
-            Search.Clear();
-            Main.Clear();
-            Organizar.Clear();
+         
 
             try
             {
@@ -169,6 +201,10 @@ namespace TareasPendientes.Blazor.Entities
             {
                 Listas.Add(new Lista("Mi primera lista", 0));
             }
+
+            Search.Clear();
+            Main.Clear();
+            Organizar.Clear();
         }
    
         public XmlDocument ToXmlDocument()
