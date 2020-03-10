@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using System.Text;
 using Microsoft.AspNetCore.Blazor.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using TareasPendientes.Helpers;
+using Blazor.FileReader;
 
 namespace TareasPendientes.Blazor2
 {
@@ -13,6 +15,8 @@ namespace TareasPendientes.Blazor2
         {
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("app");
+            builder.Services.AddScoped<IDataSave,DataSaveLocal>();
+            builder.Services.AddFileReaderService(options => options.InitializeOnFirstCall = true);
 
             await builder.Build().RunAsync();
         }

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using TareasPendientes.Blazor2.Extension;
 using Gabriel.Cat.S.Extension;
+using System.Text.Json.Serialization;
 
 namespace TareasPendientes.Blazor2.Entities
 {
@@ -21,11 +22,76 @@ namespace TareasPendientes.Blazor2.Entities
         {
             Tareas.AddRange(listaTemporal);
         }
-
+        [JsonIgnore]
         public SortedList<long, Tarea> Tareas { get; set; }
+        public Tarea[] ITareas
+        {
+            get { return Tareas.GetValues(); }
+            set
+            {
+                Tareas.Clear();
+                for(int i = 0; i < value.Length; i++)
+                {
+                    Tareas.Add(value[i]);
+                }
+            }
+        }
+        [JsonIgnore]
         public SortedList<long, Lista> ListasHerencia { get; set; }
+        public long[] IListasHerencia
+        {
+            get { return ListasHerencia.GetKeys(); }
+            set
+            {
+                ListasHerencia.Clear();
+                for (int i = 0; i < value.Length; i++)
+                {
+                    ListasHerencia.Add(value[i],null);
+                }
+            }
+        }
+        [JsonIgnore]
         public SortedList<long, Tarea> TareasOcultas { get; set; }
+        public long[] ITareasOcultas
+        {
+            get { return TareasOcultas.GetKeys(); }
+            set
+            {
+                TareasOcultas.Clear();
+                for (int i = 0; i < value.Length; i++)
+                {
+                    TareasOcultas.Add(value[i], null);
+                }
+            }
+        }
+        [JsonIgnore]
         public SortedList<long, DateTime> TareasHechas { get; set; }
+
+        public long[] ITareasHechasID
+        {
+            get { return TareasHechas.GetKeys(); }
+            set
+            {
+                TareasHechas.Clear();
+                for (int i = 0; i < value.Length; i++)
+                {
+                    TareasHechas.Add(value[i], default);
+                }
+            }
+        }
+        public DateTime[] ITareasHechasFecha
+        {
+            get { return TareasHechas.GetValues(); }
+            set
+            {
+                int pos = 0;
+                TareasHechas.Clear();
+                foreach(var fechas in TareasHechas)
+                {
+                    TareasHechas[fechas.Key] = value[pos++];
+                }
+            }
+        }
 
         public void Clear()
         {

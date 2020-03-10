@@ -10,14 +10,14 @@
         {
             if (lst.Value.Tareas.Count > 0)
             {
-                <li @onclick="@(() => ListaActual = lst.Value)">@lst.Value.ToString()</li>
+                <li @onclick="@(() => ListaSeleccionada(lst.Value))">@lst.Value.ToString()</li>
             }
         }
     </ul>
     @if (ListaActual != null)
     {
         <h4>Tareas Lista: @ListaActual.ToString()</h4>
-        <VisorLista Lista="ListaActual" OnClick="@((tarea)=>TareaSeleccionada=tarea)" ></VisorLista>
+        <VisorLista Lista="@ListaActualTemporal" OnClick="@((tarea)=>TareaSeleccionada=tarea)" ></VisorLista>
         @if (TareaSeleccionada != null)
         {
 
@@ -44,9 +44,20 @@ else
     <h4>No hay listas...</h4>
 }
 @code {
+    
     [CascadingParameter] Data Datos { get; set; }
+
+
     Lista ListaActual { get; set; } = null;
     Tarea TareaSeleccionada { get; set; } = null;
+    Lista ListaActualTemporal { get; set; } = null;
+    
+    void ListaSeleccionada(Lista lista)
+    {
+        ListaActual = lista;
+        ListaActualTemporal = new Lista(ListaActual.Tareas.GetValues());
+        TareaSeleccionada = null; 
+    }
     async Task PreguntarSiEstaSeguro(Lista listaDestino)
     {
         if(await JS.PreguntaAsync($"Deseas enviar la tarea '{TareaSeleccionada.ToString()}' a la lista {listaDestino.ToString()}?"))
@@ -54,6 +65,8 @@ else
             ListaActual.Tareas.Remove(TareaSeleccionada);
             listaDestino.Tareas.Add(TareaSeleccionada);
             TareaSeleccionada = null;
+            ListaActualTemporal = null;
+            ListaActual = null;
         }
     }
 

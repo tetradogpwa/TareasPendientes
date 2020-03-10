@@ -1,0 +1,23 @@
+﻿@page "/Guardar"
+
+@using TareasPendientes.Helpers
+
+@inject IDataSave  DataSave
+@inject IJSRuntime JS
+<h3>Guardar</h3>
+<button class="btn btn-success" type="button" @onclick="@(()=>GuardaDatos())">Guardar datos</button>
+@code {
+    [CascadingParameter] Data Datos { get; set; }
+    async Task GuardaDatos()
+    {
+        try
+        {
+            await DataSave.Save(JS, Datos.ToJson());
+            await JS.MostrarMensajeAsync("Se ha guardado correctamente!");
+        }
+        catch(Exception ex)
+        {
+                await JS.MostrarMensajeAsync($"Ha ocurrido un problema al guardar...{ex.Message}");
+        }
+    }
+}

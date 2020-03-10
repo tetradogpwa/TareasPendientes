@@ -1,6 +1,8 @@
-﻿using Microsoft.JSInterop;
+﻿using Blazor.FileReader;
+using Microsoft.JSInterop;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using TareasPendientes.Blazor2.Entities;
@@ -80,5 +82,26 @@ namespace TareasPendientes.Blazor2.Extension
         {
             return lst.Count>0? lst[lst.Count - 1]:default;
         }
+
+        public static async Task<byte[]> Read(this IFileReference fileReader, int buffer = 4 * 1024)
+        {
+            MemoryStream ms = null;
+            byte[] bytesFile = null;
+            try
+            {
+                ms = await fileReader.CreateMemoryStreamAsync(buffer);
+
+                bytesFile = new byte[ms.Length];
+                ms.Read(bytesFile, 0, (int)ms.Length);
+            }
+            finally
+            {
+                if (ms != null)
+                    ms.Close();
+
+            }
+            return bytesFile;
+        }
+
     }
 }

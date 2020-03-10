@@ -1,0 +1,28 @@
+﻿@page "/GestionDatos"
+@using Blazor.FileReader
+@using System.IO;
+@inject IFileReaderService fileReaderService
+@inject IJSRuntime JS
+<h3>Gestión Datos</h3>
+<text>Cargar </text><input type="file" @ref="inpCargarBD" @onchange="CargarBD" accept=".xml" /><br/>
+<button class="btn btn-success" @onclick="@(()=>Console.WriteLine(Datos.ToJson()))">Descargar</button>
+@code {
+    [CascadingParameter] Data Datos { get; set; }
+    ElementReference inpCargarBD;
+    async Task CargarBD()
+    {
+        const int BUFFER = 4 * 1024;
+
+        foreach (IFileReference file in await fileReaderService.CreateReference(inpCargarBD).EnumerateFilesAsync())
+        {
+            try
+            {
+                Datos.Load(Convert.ToString(await file.Read(BUFFER)));
+            }
+            catch(Exception ex) {
+                await JS.MostrarMensajeAsync($"Ha ocurrido un error al cargar el archivo....\n {ex.Message}");
+            }
+
+        }
+    }
+}
