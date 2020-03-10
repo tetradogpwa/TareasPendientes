@@ -15,8 +15,8 @@
     {
         <div id="Visor-Lista">
             <div>
-                <input class="Editar-NombreLista " type="text" @bind="@ListaActual.Name" title="Pulsa ENTER para aplicar cambios" />
-                <input class="btn btn-success Crear-Tarea" type="button" value="+" @onclick="@(()=>ListaActual.Tareas.Add(new Tarea("Sin descripcion")))" />
+                <input class="Editar-NombreLista " type="text" @bind="@ListaActual.Name" title="Pulsa ENTER para aplicar cambios" placeholder="Nombre Lista" />
+                <input class="btn btn-success Crear-Tarea" type="button" value="+" @onclick="@(()=>ListaActual.Tareas.Add(new Tarea("")))" />
                 <input class="CheckEditar-Tareas" type="checkbox" @bind="@EditMode" />
             </div>
             @if (EditMode)

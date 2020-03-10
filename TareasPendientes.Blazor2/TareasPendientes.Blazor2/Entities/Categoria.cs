@@ -9,6 +9,7 @@ namespace TareasPendientes.Blazor2.Entities
 {
     public class Categoria:Base
     {
+        public Categoria() : this("") { }
         public Categoria(string nombre,long id = -1) : base(nombre, id)
         {
             Listas = new SortedList<long, Lista>();
@@ -25,7 +26,7 @@ namespace TareasPendientes.Blazor2.Entities
             set
             {
                 Listas.Clear();
-                for (int i = 0; i < value.Length; i++)
+                for (int i = 0;value!=null && i < value.Length; i++)
                     Listas.Add(value[i], null);
 
             }

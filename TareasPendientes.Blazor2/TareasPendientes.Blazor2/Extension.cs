@@ -59,6 +59,10 @@ namespace TareasPendientes.Blazor2.Extension
         }
         public static async Task DownloadFileAsync(this IJSRuntime js, string fileName, object data, string metaType)
         {
+            if(data is string)
+            {
+                data = System.Text.ASCIIEncoding.ASCII.GetBytes(data as string);
+            }
             await js.InvokeVoidAsync("FileSaveAs", fileName, data, metaType);
             //da problemas pone que no se ha podido descargar...
         }

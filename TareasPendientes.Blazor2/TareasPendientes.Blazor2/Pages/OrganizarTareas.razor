@@ -4,70 +4,89 @@
 <br />
 @if (Datos.Listas.Count > 0)
 {
-    <h4>Listas</h4>
-    <ul class="Lista-Listas">
-        @foreach (var lst in Datos.Listas)
-        {
-            if (lst.Value.Tareas.Count > 0)
+    @if (HayTareas)
+    {<h4>Listas</h4>
+        <ul class="Lista-Listas">
+            @foreach (var lst in Datos.Listas)
             {
-                <li @onclick="@(() => ListaSeleccionada(lst.Value))">@lst.Value.ToString()</li>
+                if (lst.Value.Tareas.Count > 0)
+                {
+                    <li @onclick="@(() => ListaSeleccionada(lst.Value))">@lst.Value.ToString()</li>
+                }
+            }
+        </ul>
+        @if (ListaActual != null)
+        {
+            <h4>Tareas Lista: @ListaActual.ToString()</h4>
+            <VisorLista Lista="@ListaActualTemporal" OnClick="@((tarea) => TareaSeleccionada = tarea)"></VisorLista>
+            @if (TareaSeleccionada != null)
+            {
+
+                <h4>Listas destino</h4>
+                <h5>'@TareaSeleccionada.ToString()'</h5>
+                <ul>
+                    @foreach (var lst in Datos.Listas)
+                    {
+                        if (lst.Value.Id != ListaActual.Id)
+                        {
+                            <li @onclick="@(() => PreguntarSiEstaSeguro(lst.Value))">@lst.Value.Name</li>
+                        }
+                    }
+                </ul>
             }
         }
-    </ul>
-    @if (ListaActual != null)
-    {
-        <h4>Tareas Lista: @ListaActual.ToString()</h4>
-        <VisorLista Lista="@ListaActualTemporal" OnClick="@((tarea)=>TareaSeleccionada=tarea)" ></VisorLista>
-        @if (TareaSeleccionada != null)
+        else
         {
-
-            <h4>Listas destino</h4>
-            <h5>'@TareaSeleccionada.ToString()'</h5>
-            <ul>
-                @foreach (var lst in Datos.Listas)
-                {
-                    if (lst.Value.Id != ListaActual.Id)
-                    {
-                        <li @onclick="@(()=>PreguntarSiEstaSeguro(lst.Value))">@lst.Value.Name</li>
-                    }
-                }
-            </ul>
-        }
+            <h4>No hay ninguna lista seleccionada</h4>
+        }}
+    else
+    {
+        <h4>No hay tareas</h4>
+    }
     }
     else
     {
-        <h4>No hay ninguna lista seleccionada</h4>
+        <h4>No hay listas...</h4>
     }
-}
-else
-{
-    <h4>No hay listas...</h4>
-}
-@code {
-    
-    [CascadingParameter] Data Datos { get; set; }
+    @code {
+
+        [CascadingParameter] Data Datos { get; set; }
 
 
-    Lista ListaActual { get; set; } = null;
-    Tarea TareaSeleccionada { get; set; } = null;
-    Lista ListaActualTemporal { get; set; } = null;
-    
-    void ListaSeleccionada(Lista lista)
-    {
-        ListaActual = lista;
-        ListaActualTemporal = new Lista(ListaActual.Tareas.GetValues());
-        TareaSeleccionada = null; 
-    }
-    async Task PreguntarSiEstaSeguro(Lista listaDestino)
-    {
-        if(await JS.PreguntaAsync($"Deseas enviar la tarea '{TareaSeleccionada.ToString()}' a la lista {listaDestino.ToString()}?"))
+        Lista ListaActual { get; set; } = null;
+        Tarea TareaSeleccionada { get; set; } = null;
+        Lista ListaActualTemporal { get; set; } = null;
+        bool HayTareas
         {
-            ListaActual.Tareas.Remove(TareaSeleccionada);
-            listaDestino.Tareas.Add(TareaSeleccionada);
-            TareaSeleccionada = null;
-            ListaActualTemporal = null;
-            ListaActual = null;
-        }
-    }
+            get
+            {
+                bool hay = false;
 
-}
+                Datos.Listas.WhileEach((lst) =>
+                {
+                    hay = lst.Value.Tareas.Count > 0;
+                    return !hay;
+                });
+                return hay;
+            }
+        }
+
+        void ListaSeleccionada(Lista lista)
+        {
+            ListaActual = lista;
+            ListaActualTemporal = new Lista(ListaActual.Tareas.GetValues());
+            TareaSeleccionada = null;
+        }
+        async Task PreguntarSiEstaSeguro(Lista listaDestino)
+        {
+            if (await JS.PreguntaAsync($"Deseas enviar la tarea '{TareaSeleccionada.ToString()}' a la lista {listaDestino.ToString()}?"))
+            {
+                ListaActual.Tareas.Remove(TareaSeleccionada);
+                listaDestino.Tareas.Add(TareaSeleccionada);
+                TareaSeleccionada = null;
+                ListaActualTemporal = null;
+                ListaActual = null;
+            }
+        }
+
+    }

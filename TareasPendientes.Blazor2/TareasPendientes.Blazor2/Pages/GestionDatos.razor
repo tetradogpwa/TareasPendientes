@@ -4,8 +4,8 @@
 @inject IFileReaderService fileReaderService
 @inject IJSRuntime JS
 <h3>Gestión Datos</h3>
-<text>Cargar </text><input type="file" @ref="inpCargarBD" @onchange="CargarBD" accept=".xml" /><br/>
-<button class="btn btn-success" @onclick="@(()=>Console.WriteLine(Datos.ToJson()))">Descargar</button>
+<text>Cargar </text><input type="file" @ref="inpCargarBD" @onchange="CargarBD" accept=".json" /><br/><br/>
+<button class="btn btn-success" @onclick="@(()=>JS.DownloadFileAsync("datos.json",Datos.ToJson(),"application/json"))">Descargar</button>
 @code {
     [CascadingParameter] Data Datos { get; set; }
     ElementReference inpCargarBD;
@@ -17,7 +17,7 @@
         {
             try
             {
-                Datos.Load(Convert.ToString(await file.Read(BUFFER)));
+                Datos.Load(System.Text.ASCIIEncoding.ASCII.GetString(await file.Read(BUFFER)));
             }
             catch(Exception ex) {
                 await JS.MostrarMensajeAsync($"Ha ocurrido un error al cargar el archivo....\n {ex.Message}");

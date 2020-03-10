@@ -11,6 +11,7 @@ namespace TareasPendientes.Blazor2.Entities
 {
     public class Lista:Base, IEnumerable<Tarea>
     {
+        public Lista() : this("") { }
         public Lista(string nombre,long id=-1):base(nombre,id)
         {
             Tareas = new SortedList<long, Tarea>();

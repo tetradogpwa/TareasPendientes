@@ -1,62 +1,69 @@
 ﻿@page "/Organizar/Listas"
 @inject IJSRuntime JS
 <h2>Organizar Listas</h2>
-<div class="Eliminar-Listas">
-    <h3>Eliminar Listas</h3>
-    <ul>
-        @foreach (var lista in Data.Listas)
-        {
-            <li @ondblclick="@(()=>PreguntarSiQuiereBorrarLista(lista.Value))" @onclick="@(()=>ListaActual=lista.Value)">@lista.Value.ToString()</li>
-        }
-    </ul>
-    @if (ListaActual != null)
-    {
-        <h3>Editar Lista:@ListaActual.ToString()</h3>
-
-        <h4>Tareas</h4>
+@if (Data.Listas.Count > 0)
+{
+    <div class="Eliminar-Listas">
+        <h3>Eliminar Listas</h3>
         <ul>
-            @foreach (var tarea in ListaActual)
+            @foreach (var lista in Data.Listas)
             {
-                <li class="@(ListaActual.Tareas.Contains(tarea)?"Lista-Actual":"Lista-Heredada")"  @onclick="@(()=>PreguntarPorTarea(tarea))">@tarea.ToString()</li>
+                <li @ondblclick="@(() => PreguntarSiQuiereBorrarLista(lista.Value))" @onclick="@(() => ListaActual = lista.Value)">@lista.Value.ToString()</li>
             }
         </ul>
-        <h4>Categorias</h4>
-        <div class="Lista-Categorias">
-            <h5>Estan en la lista</h5>
-            <ul class="Lista-Categorias-Estan">
-                @foreach (var categoria in Data.Categorias)
+        @if (ListaActual != null)
+        {
+            <h3>Editar Lista:@ListaActual.ToString()</h3>
+
+            <h4>Tareas</h4>
+            <ul>
+                @foreach (var tarea in ListaActual)
                 {
-                    if (categoria.Value.Listas.Contains(ListaActual)&&categoria.Value.Id!=0)
-                    {
-                        <li @onclick="@(()=>PreguntarSiQuiereQuitarLaCategoria(categoria.Value))">@categoria.Value.ToString()</li>
-                    }
+                    <li class="@(ListaActual.Tareas.Contains(tarea) ? "Lista-Actual" : "Lista-Heredada")" @onclick="@(() => PreguntarPorTarea(tarea))">@tarea.ToString()</li>
                 }
             </ul>
-            <h5>Disponibles</h5>
-            <ul class="Lista-Categorias-NoEstan">
-
-                @foreach (var categoria in Data.Categorias)
-                {
-                    if (!categoria.Value.Listas.Contains(ListaActual))
+            <h4>Categorias</h4>
+            <div class="Lista-Categorias">
+                <h5>Estan en la lista</h5>
+                <ul class="Lista-Categorias-Estan">
+                    @foreach (var categoria in Data.Categorias)
                     {
-                        <li @onclick="@(()=>categoria.Value.Listas.Add(ListaActual))">@categoria.Value.ToString()</li>
+                        if (categoria.Value.Listas.Contains(ListaActual) && categoria.Value.Id != 0)
+                        {
+                            <li @onclick="@(() => PreguntarSiQuiereQuitarLaCategoria(categoria.Value))">@categoria.Value.ToString()</li>
+                        }
                     }
-                }
-            </ul>
-        </div>
-    }
-    else
-    {
-        <h3>No hay lista seleccionada</h3>
-    }
+                </ul>
+                <h5>Disponibles</h5>
+                <ul class="Lista-Categorias-NoEstan">
 
-</div>
+                    @foreach (var categoria in Data.Categorias)
+                    {
+                        if (!categoria.Value.Listas.Contains(ListaActual) && categoria.Key != 0)
+                        {
+                            <li @onclick="@(() => categoria.Value.Listas.Add(ListaActual))">@categoria.Value.ToString()</li>
+                        }
+                    }
+                </ul>
+            </div>
+        }
+        else
+        {
+            <h3>No hay lista seleccionada</h3>
+        }
+
+    </div> 
+}
+else
+{
+    <h3>No hay lista</h3>
+}
 @code {
     [CascadingParameter] Data Data { get; set; }
     Lista ListaActual = null;
     async Task PreguntarSiQuiereQuitarLaCategoria(Categoria categoria)
     {
-        if(await JS.PreguntaAsync($"Quieres eliminar la categoria {categoria.ToString()} de la lista {ListaActual.ToString()}?"))
+        if (await JS.PreguntaAsync($"Quieres eliminar la categoria {categoria.ToString()} de la lista {ListaActual.ToString()}?"))
         {
             categoria.Listas.Remove(ListaActual);
         }
@@ -64,7 +71,7 @@
     async Task PreguntarSiQuiereBorrarLista(Lista lista)
     {
         IList<Tarea> tareas;
-        if(await JS.PreguntaAsync($"Quieres eliminar la lista {lista.ToString()}?"))
+        if (await JS.PreguntaAsync($"Quieres eliminar la lista {lista.ToString()}?"))
         {
             Data.Listas.Remove(lista);
             tareas = lista.Tareas.GetValues();
@@ -76,13 +83,14 @@
                     lst.Value.ListasHerencia.Remove(lista);
                     for (int i = 0; i < tareas.Count; i++)
                     {
-                        if(lst.Value.TareasHechas.ContainsKey(tareas[i].Id))
-                          lst.Value.TareasHechas.Remove(tareas[i].Id);
+                        if (lst.Value.TareasHechas.ContainsKey(tareas[i].Id))
+                            lst.Value.TareasHechas.Remove(tareas[i].Id);
                     }
                     lst.Value.TareasOcultas.RemoveRange(tareas);
-                  
+
                 }
             }
+            ListaActual = null;
         }
     }
     async Task PreguntarPorTarea(Tarea tarea)
