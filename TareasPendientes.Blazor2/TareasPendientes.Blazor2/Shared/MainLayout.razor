@@ -1,0 +1,25 @@
+﻿@inherits LayoutComponentBase
+
+<div class="sidebar">
+    <NavMenu />
+</div>
+
+<div class="main">
+    <div class="top-row px-4">
+        <a href="http://github.com/tetradog" target="_blank" class="ml-md-auto">Sobre</a>
+    </div>
+
+    <div class="content px-4">
+        <CascadingValue Value="Data">
+            @Body
+        </CascadingValue>
+    </div>
+</div>
+@code{
+    Data Data { get; set; }
+    protected override void OnInitialized()
+    {
+        Data = new Data();//más adelante cargarlo
+        base.OnInitialized();
+    }
+}

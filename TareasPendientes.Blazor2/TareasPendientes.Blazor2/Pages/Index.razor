@@ -1,0 +1,66 @@
+﻿@page "/"
+@page "/{IdCategoria:long}/{IdLista:long}"
+<div id="Main">
+    <div id="Selector-Listas">
+        <SelectBase Class="Select-Categorias TodoElEspacio" List="@Data.Categorias.Select((c)=>c.Value as Base).ToArray()" OnSeleccionChange="@((c)=> { Categoria = c as Categoria;ListaActual = null; })" SelectedItem="Categoria" />
+        <div class="Añadir-Lista">
+            <input class="Crear-Lista TodoElEspacio" type="text" @bind="@NombreTemporalLista" @onkeypress="@((KeyboardEventArgs e)=>{ if (e.Key == "Enter") AñadirLista(); })" title="Pulsa ENTER para añadir la lista" />
+            @foreach (var lst in Categoria.Listas)
+            {
+                <br /> <a href="/@Categoria.Id/@lst.Value.Id">@lst.Value.Name</a>
+            }
+        </div>
+    </div>
+    @if (ListaActual != null)
+    {
+        <div id="Visor-Lista">
+            <div>
+                <input class="Editar-NombreLista " type="text" @bind="@ListaActual.Name" title="Pulsa ENTER para aplicar cambios" />
+                <input class="btn btn-success Crear-Tarea" type="button" value="+" @onclick="@(()=>ListaActual.Tareas.Add(new Tarea("Sin descripcion")))" />
+                <input class="CheckEditar-Tareas" type="checkbox" @bind="@EditMode" />
+            </div>
+            @if (EditMode)
+            {
+                <EditorTareasLista Lista="ListaActual" />
+            }
+            else
+            {
+                <VisorLista Lista="ListaActual" MostrarCheck="true" />
+            }
+        </div>
+    }
+</div>
+@code{
+    [CascadingParameter] Data Data { get; set; }
+    [Parameter] public long IdLista { get; set; } = 0;
+    [Parameter] public long IdCategoria { get; set; } = 0;
+
+    Categoria Categoria { get; set; }
+    Lista ListaActual { get; set; }
+    string NombreTemporalLista { get; set; }
+
+    bool EditMode { get; set; } = true;
+
+    protected override void OnParametersSet()
+    {
+        if (Data.Listas.ContainsKey(IdLista))
+            ListaActual = Data.Listas[IdLista];
+        if (Data.Categorias.ContainsKey(IdCategoria))
+            Categoria = Data.Categorias[IdCategoria];
+        base.OnParametersSet();
+        Console.WriteLine($"ParameterSet: Lista {IdLista} y Categoria {IdCategoria}");
+    }
+    void AñadirLista()
+    {
+        Lista lista;
+        if (!string.IsNullOrEmpty(NombreTemporalLista) && !string.IsNullOrWhiteSpace(NombreTemporalLista))
+        {
+            lista = new Lista(NombreTemporalLista.Trim());
+            if (Categoria.Id != 0)
+                Categoria.Listas.Add(lista);
+            Data.Listas.Add(lista);
+            NombreTemporalLista = null;
+        }
+    }
+
+}

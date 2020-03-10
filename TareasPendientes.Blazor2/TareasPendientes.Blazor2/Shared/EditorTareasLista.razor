@@ -1,0 +1,16 @@
+﻿
+<div class="Lista-Editor">
+    @if (Lista != null)
+    {
+        foreach (Tarea tarea in Lista)
+        {
+
+          <input class="Tarea-Editor" type="text" @bind="@tarea.Name" placeholder="Descripcion tarea"/>
+         
+        }
+    }
+</div>
+@code {
+    [Parameter] public Lista Lista { get; set; }
+
+}

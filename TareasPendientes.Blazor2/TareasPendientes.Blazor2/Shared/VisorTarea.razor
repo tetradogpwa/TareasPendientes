@@ -1,0 +1,41 @@
+﻿<div class="Tarea-View" @onclick="@(()=>OnClick.InvokeAsync(Tarea))">
+    <br />
+    @if (Tarea.HasName)
+    {
+        @((MarkupString)Tarea.Name)
+    }
+    else
+    {
+        <text>@Tarea.ToString()</text>
+    }
+    @if (EstaHecha)
+    {
+    <input class="DateTime-Tarea" type="datetime" value="@(Lista.TareasHechas.GetValue(Tarea) != default ? Lista.TareasHechas.GetValue(Tarea) : default(DateTime?))" disabled />
+    }
+    @if (MostrarCheck)
+    {
+    <input class="CheckBox-Tarea" type="checkbox" @bind="EstaHecha" />
+    }
+</div>
+
+@code {
+    [Parameter]public Tarea Tarea { get; set; }
+    [Parameter]public Lista Lista { get; set; }
+    [Parameter]public bool MostrarCheck { get; set; } = false;
+    [Parameter]public EventCallback<Tarea> OnClick { get; set; }
+
+    bool EstaHecha {
+        get => Lista.TareasHechas.ContainsKey(Tarea.Id);
+        set
+        {
+            Lista.TareasHechas.Remove(Tarea.Id);
+            if (value)
+            {
+
+                Lista.TareasHechas.Add(Tarea.Id, DateTime.UtcNow);
+            }
+
+        }
+    }
+
+}

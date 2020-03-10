@@ -1,0 +1,59 @@
+﻿@page "/BuscarTareas"
+@inject IJSRuntime JS
+@inject NavigationManager navigationManager
+<h3>Buscar Tareas</h3>
+<input class="TodoElEspacio" type="text" @bind="@TextoBusqueda" @onkeypress="@((KeyboardEventArgs k)=> { if (k.Key=="Enter")Buscar();})" />
+@if (listaTemporal != null)
+{
+    <VisorLista Lista="@listaTemporal" OnClick="@((tarea)=>PreguntaSiQuiereNavegar(tarea))" />
+}
+@code {
+    [CascadingParameter] Data Datos { get; set; }
+    string TextoBusqueda { get; set; }
+    Lista listaTemporal = null;
+    SortedList<long, Lista> tareasLista = new SortedList<long, Lista>();
+    async Task PreguntaSiQuiereNavegar(Tarea tarea)
+    {
+        Lista lista = tareasLista[tarea.Id];
+        List<KeyValuePair<long, Categoria>> categorias;
+        Categoria categoria;
+        if (await JS.PreguntaAsync($"Desas ver la lista '{lista.ToString()}'?"))
+        {
+            try
+            {
+                categorias = Datos.Categorias.Filtra((c) => c.Value.Listas.Contains(lista));
+                if (categorias.Count > 1) categoria = categorias[1].Value;
+                else categoria = categorias[0].Value;
+                navigationManager.NavigateTo($"/{categoria.Id}/{lista.Id}");
+            }
+            catch { }
+
+        }
+    }
+    void Buscar()
+    {
+        List<Tarea> tareasEncontradas = new List<Tarea>();
+        if (!string.IsNullOrEmpty(TextoBusqueda))
+        {
+            TextoBusqueda = TextoBusqueda.Trim();
+
+            if (!string.IsNullOrEmpty(TextoBusqueda))
+            {
+                tareasLista.Clear();
+                foreach (var lista in Datos.Listas)
+                {
+                    foreach (var tarea in lista.Value.Tareas)
+                    {
+                        if (!string.IsNullOrEmpty(tarea.Value.Name) && tarea.Value.Name.Contains(TextoBusqueda))
+                        {
+                            tareasEncontradas.Add(tarea.Value);
+                            tareasLista.Add(tarea.Value.Id, lista.Value);
+                        }
+                    }
+                }
+                listaTemporal = new Lista(tareasEncontradas);
+            }
+        }
+    }
+
+}

@@ -1,0 +1,47 @@
+﻿@page "/Organizar/Herencia"
+@inject IJSRuntime JS
+<h3>Organizar Herencia</h3>
+<h4>Listas</h4>
+<ul>
+    @foreach (var lista in Data.Listas)
+    {
+        <li @onclick="@(()=>ListaActual=lista.Value)">@lista.Value.ToString()</li>
+    }
+</ul>
+@if (ListaActual != null)
+{
+    <h4>Lista Seleccionada: @ListaActual.ToString()</h4>
+    <h5>Hereda</h5>
+    <ul>
+        @foreach (var lista in ListaActual.ListasHerencia)
+        {
+            <li @onclick="@(()=>PreguntarSiQuiereDeheredar(lista.Value))">@lista.Value.ToString()</li>
+        }
+    </ul>
+    <h5>No hereda</h5>
+    <ul>
+        @foreach (Lista lista in Lista.NoHereda(Data.Listas, ListaActual))
+        {
+        @*hijo hereda de padre y tercero luego tercero hereda de padre, hijo debe de quitarse la herencia de padre porque esta ya esta siendo hereda por tercero...mejor no porque luego si tercero deja de heredar luego hay problemas porque no vuelve la herencia al hijo... *@
+        @*(IQuitarAncestros)lo dejo porque el usuario ve que se quita de la herencia y si luego quita al hijo verá de nuevo al padre*@
+        <li @onclick="@(()=> {  Lista.IQuitarAncestros(ListaActual.ListasHerencia, lista); ListaActual.ListasHerencia.Add(lista); })">@lista.ToString()</li>
+    }
+    </ul>
+}
+else
+{
+    <h5>No hay una lista seleccionada</h5>
+}
+
+@code {
+    [CascadingParameter] Data Data { get; set; }
+    Lista ListaActual = null;
+
+    async Task PreguntarSiQuiereDeheredar(Lista lista)
+    {
+        if(await JS.PreguntaAsync($"Quieres eliminar {lista.Name} de la herencia?"))
+        {
+            ListaActual.ListasHerencia.Remove(lista);
+        }
+    }
+}

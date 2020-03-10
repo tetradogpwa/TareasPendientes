@@ -1,0 +1,38 @@
+﻿@page "/Organizar/Categorias"
+@inject IJSRuntime JS
+<h3>Organizar Categorias</h3>
+<div class="Organizar-Categorias">
+    <div>
+        <input type="text" @bind="@nombreCategoria" placeholder="Nombre categoria" />
+        <button class="btn btn-success" type="button" @onclick="AñadirCategoria">Añadir Categoria</button>
+    </div>
+    <div>
+        @foreach (var categoria in Data.Categorias)
+        {
+            <br />
+            <input type="text" @ondblclick="@(() => PreguntarSiQuiereBorrarCategoria(categoria.Value))" @bind="@categoria.Value.Name" placeholder="@categoria.Value.ToString()" />
+        }
+    </div>
+
+</div>
+
+@code {
+    [CascadingParameter] Data Data { get; set; }
+    string nombreCategoria;
+
+    async Task PreguntarSiQuiereBorrarCategoria(Categoria categoria)
+    {
+        if (await JS.PreguntaAsync($"Deseas borrar la categoria {categoria.Name}?"))
+        {
+            Data.Categorias.Remove(categoria);
+        }
+    }
+    void AñadirCategoria()
+    {
+        if (!string.IsNullOrEmpty(nombreCategoria) || !string.IsNullOrWhiteSpace(nombreCategoria))
+        {
+            Data.Categorias.Add(new Categoria(nombreCategoria.Trim()));
+            nombreCategoria = null;
+        }
+    }
+}

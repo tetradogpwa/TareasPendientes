@@ -1,0 +1,60 @@
+﻿@page "/Organizar/Tareas"
+@inject IJSRuntime JS
+<h3>Organizar Tareas</h3>
+<br />
+@if (Datos.Listas.Count > 0)
+{
+    <h4>Listas</h4>
+    <ul class="Lista-Listas">
+        @foreach (var lst in Datos.Listas)
+        {
+            if (lst.Value.Tareas.Count > 0)
+            {
+                <li @onclick="@(() => ListaActual = lst.Value)">@lst.Value.ToString()</li>
+            }
+        }
+    </ul>
+    @if (ListaActual != null)
+    {
+        <h4>Tareas Lista: @ListaActual.ToString()</h4>
+        <VisorLista Lista="ListaActual" OnClick="@((tarea)=>TareaSeleccionada=tarea)" ></VisorLista>
+        @if (TareaSeleccionada != null)
+        {
+
+            <h4>Listas destino</h4>
+            <h5>'@TareaSeleccionada.ToString()'</h5>
+            <ul>
+                @foreach (var lst in Datos.Listas)
+                {
+                    if (lst.Value.Id != ListaActual.Id)
+                    {
+                        <li @onclick="@(()=>PreguntarSiEstaSeguro(lst.Value))">@lst.Value.Name</li>
+                    }
+                }
+            </ul>
+        }
+    }
+    else
+    {
+        <h4>No hay ninguna lista seleccionada</h4>
+    }
+}
+else
+{
+    <h4>No hay listas...</h4>
+}
+@code {
+    [CascadingParameter] Data Datos { get; set; }
+    Lista ListaActual { get; set; } = null;
+    Tarea TareaSeleccionada { get; set; } = null;
+    async Task PreguntarSiEstaSeguro(Lista listaDestino)
+    {
+        if(await JS.PreguntaAsync($"Deseas enviar la tarea '{TareaSeleccionada.ToString()}' a la lista {listaDestino.ToString()}?"))
+        {
+            ListaActual.Tareas.Remove(TareaSeleccionada);
+            listaDestino.Tareas.Add(TareaSeleccionada);
+            TareaSeleccionada = null;
+        }
+    }
+
+}

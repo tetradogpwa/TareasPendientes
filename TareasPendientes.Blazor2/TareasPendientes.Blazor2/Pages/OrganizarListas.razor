@@ -1,0 +1,103 @@
+﻿@page "/Organizar/Listas"
+@inject IJSRuntime JS
+<h2>Organizar Listas</h2>
+<div class="Eliminar-Listas">
+    <h3>Eliminar Listas</h3>
+    <ul>
+        @foreach (var lista in Data.Listas)
+        {
+            <li @ondblclick="@(()=>PreguntarSiQuiereBorrarLista(lista.Value))" @onclick="@(()=>ListaActual=lista.Value)">@lista.Value.ToString()</li>
+        }
+    </ul>
+    @if (ListaActual != null)
+    {
+        <h3>Editar Lista:@ListaActual.ToString()</h3>
+
+        <h4>Tareas</h4>
+        <ul>
+            @foreach (var tarea in ListaActual)
+            {
+                <li class="@(ListaActual.Tareas.Contains(tarea)?"Lista-Actual":"Lista-Heredada")"  @onclick="@(()=>PreguntarPorTarea(tarea))">@tarea.ToString()</li>
+            }
+        </ul>
+        <h4>Categorias</h4>
+        <div class="Lista-Categorias">
+            <h5>Estan en la lista</h5>
+            <ul class="Lista-Categorias-Estan">
+                @foreach (var categoria in Data.Categorias)
+                {
+                    if (categoria.Value.Listas.Contains(ListaActual)&&categoria.Value.Id!=0)
+                    {
+                        <li @onclick="@(()=>PreguntarSiQuiereQuitarLaCategoria(categoria.Value))">@categoria.Value.ToString()</li>
+                    }
+                }
+            </ul>
+            <h5>Disponibles</h5>
+            <ul class="Lista-Categorias-NoEstan">
+
+                @foreach (var categoria in Data.Categorias)
+                {
+                    if (!categoria.Value.Listas.Contains(ListaActual))
+                    {
+                        <li @onclick="@(()=>categoria.Value.Listas.Add(ListaActual))">@categoria.Value.ToString()</li>
+                    }
+                }
+            </ul>
+        </div>
+    }
+    else
+    {
+        <h3>No hay lista seleccionada</h3>
+    }
+
+</div>
+@code {
+    [CascadingParameter] Data Data { get; set; }
+    Lista ListaActual = null;
+    async Task PreguntarSiQuiereQuitarLaCategoria(Categoria categoria)
+    {
+        if(await JS.PreguntaAsync($"Quieres eliminar la categoria {categoria.ToString()} de la lista {ListaActual.ToString()}?"))
+        {
+            categoria.Listas.Remove(ListaActual);
+        }
+    }
+    async Task PreguntarSiQuiereBorrarLista(Lista lista)
+    {
+        IList<Tarea> tareas;
+        if(await JS.PreguntaAsync($"Quieres eliminar la lista {lista.ToString()}?"))
+        {
+            Data.Listas.Remove(lista);
+            tareas = lista.Tareas.GetValues();
+            foreach (var lst in Data.Listas)
+            {
+                if (lst.Value.ListasHerencia.Contains(lista))
+                {
+
+                    lst.Value.ListasHerencia.Remove(lista);
+                    for (int i = 0; i < tareas.Count; i++)
+                    {
+                        if(lst.Value.TareasHechas.ContainsKey(tareas[i].Id))
+                          lst.Value.TareasHechas.Remove(tareas[i].Id);
+                    }
+                    lst.Value.TareasOcultas.RemoveRange(tareas);
+                  
+                }
+            }
+        }
+    }
+    async Task PreguntarPorTarea(Tarea tarea)
+    {
+        if (ListaActual.Tareas.Contains(tarea))
+        {
+            if (await JS.PreguntaAsync($"Quieres eliminar la tarea {tarea.ToString()}?"))
+            {
+                ListaActual.Tareas.Remove(tarea);
+            }
+        }
+        else if (!ListaActual.TareasOcultas.Contains(tarea))
+        {
+            ListaActual.TareasOcultas.Add(tarea);
+        }
+    }
+
+}

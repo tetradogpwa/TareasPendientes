@@ -1,0 +1,34 @@
+﻿<select class="@Class" @bind="@Selection">
+    @for (int i = 0; i < List.Count; i++)
+    {
+        <option value="@i">@List[i].ToString()</option>
+    }
+</select>
+
+@code {
+    [Parameter] public IList<Base> List { get; set; }
+    [Parameter] public EventCallback<Base> OnSeleccionChange { get; set; }
+    [Parameter] public Base SelectedItem { get; set; }
+    [Parameter]public string Class { get; set; }
+    int select=0;
+    int Selection
+    {
+        get => select;
+        set
+        {
+            select = value;
+
+            OnSeleccionChange.InvokeAsync(List[select]);
+        }
+
+    }
+    protected override void OnInitialized()
+    {
+        if (SelectedItem != null)
+        {
+            select = List.IndexOf(SelectedItem);
+            if (select < 0) select = 0;
+        }
+    }
+
+}
