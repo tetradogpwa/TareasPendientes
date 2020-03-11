@@ -5,14 +5,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using TareasPendientes.Blazor2.Extension;
 using Gabriel.Cat.S.Extension;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace TareasPendientes.Blazor2.Entities
 {
-    public class Lista:Base, IEnumerable<Tarea>
+    public class Lista : Base, IEnumerable<Tarea>
     {
         public Lista() : this("") { Console.WriteLine("Lista creada"); }
-        public Lista(string nombre,long id=-1):base(nombre,id)
+        public Lista(string nombre, long id = -1) : base(nombre, id)
         {
             Tareas = new SortedList<long, Tarea>();
             ListasHerencia = new SortedList<long, Lista>();
@@ -31,7 +31,8 @@ namespace TareasPendientes.Blazor2.Entities
             set
             {
                 Tareas.Clear();
-                Tareas.AddRange(value);
+                if (value != null)
+                    Tareas.AddRange(value);
                 Console.WriteLine("Cargadas tareas lista");
             }
         }
@@ -43,56 +44,60 @@ namespace TareasPendientes.Blazor2.Entities
             set
             {
                 ListasHerencia.Clear();
-                for (int i = 0; i < value.Length; i++)
-                {
-                    ListasHerencia.Add(value[i],null);
-                }
+                if (value != null)
+                    for (int i = 0; i < value.Length; i++)
+                    {
+                        ListasHerencia.Add(value[i], null);
+                    }
                 Console.WriteLine("Cargadas listas herencia");
             }
         }
         [JsonIgnore]
         public SortedList<long, Tarea> TareasOcultas { get; set; }
-        public long[] ITareasOcultas
+        public IList<long> ITareasOcultas
         {
             get { return TareasOcultas.GetKeys(); }
             set
             {
                 TareasOcultas.Clear();
-                for (int i = 0; i < value.Length; i++)
-                {
-                    TareasOcultas.Add(value[i], null);
-                }
+                if (value != null)
+                    for (int i = 0; i < value.Count; i++)
+                    {
+                        TareasOcultas.Add(value[i], null);
+                    }
                 Console.WriteLine("Cargadas tareas ocultas");
             }
         }
         [JsonIgnore]
         public SortedList<long, DateTime> TareasHechas { get; set; }
 
-        public long[] ITareasHechasID
+        public IList<long> ITareasHechasID
         {
             get { return TareasHechas.GetKeys(); }
             set
             {
                 TareasHechas.Clear();
-                for (int i = 0; i < value.Length; i++)
-                {
-                    TareasHechas.Add(value[i], default);
-                }
+                if (value != null)
+                    for (int i = 0; i < value.Count; i++)
+                    {
+                        TareasHechas.Add(value[i], default);
+                    }
                 Console.WriteLine("Cargadas tareas hechas long");
             }
         }
-        public DateTime[] ITareasHechasFecha
+        public IList<DateTime> ITareasHechasFecha
         {
             get { return TareasHechas.GetValues(); }
             set
             {
                 int pos = 0;
                 TareasHechas.Clear();
-                foreach(var fechas in TareasHechas)
-                {
-                    TareasHechas[fechas.Key] = value[pos];
-                    pos++;
-                }
+                if (value != null)
+                    foreach (var fechas in TareasHechas)
+                    {
+                        TareasHechas[fechas.Key] = value[pos];
+                        pos++;
+                    }
                 Console.WriteLine("Cargadas tareas hechas datetime");
             }
         }
@@ -113,7 +118,7 @@ namespace TareasPendientes.Blazor2.Entities
                     if (!TareasOcultas.Contains(tarea))
                         yield return tarea;
             foreach (var tarea in Tareas)
-                    yield return tarea.Value;
+                yield return tarea.Value;
         }
 
         IEnumerator<Tarea> IEnumerable<Tarea>.GetEnumerator()
@@ -121,14 +126,14 @@ namespace TareasPendientes.Blazor2.Entities
             return GetEnumerator();
         }
 
-       
+
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
         }
         #endregion
 
-      public static IEnumerable<Lista> NoHereda(SortedList<long,Lista> dic,Lista lista)
+        public static IEnumerable<Lista> NoHereda(SortedList<long, Lista> dic, Lista lista)
         {
             //de todas las que hay, las listas que no se hereda
             SortedList<long, Lista> dicNoHereda = dic.Clone();
@@ -136,22 +141,22 @@ namespace TareasPendientes.Blazor2.Entities
             IQuitarAncestros(dicNoHereda, lista);
             //envio los que no estan :)
             //quitar ancestros puedan heredar de sucesores
-           dicNoHereda.RemoveRange(IQuitarSucesores(dicNoHereda, lista));
+            dicNoHereda.RemoveRange(IQuitarSucesores(dicNoHereda, lista));
 
-            foreach(var item in dicNoHereda)
+            foreach (var item in dicNoHereda)
             {
                 yield return item.Value;
             }
-                   
-                
+
+
         }
         static List<Lista> IQuitarSucesores(SortedList<long, Lista> dic, Lista lista)
         {
             List<Lista> porQuitar = new List<Lista>();
             //los que hereden//y sus descendencias los quito
-            foreach(var lst in dic)
+            foreach (var lst in dic)
             {
-                if(lst.Value.ListasHerencia.Contains(lista))
+                if (lst.Value.ListasHerencia.Contains(lista))
                 {
                     porQuitar.Add(lst.Value);
                     porQuitar.AddRange(IQuitarSucesores(dic, lst.Value));
@@ -160,10 +165,10 @@ namespace TareasPendientes.Blazor2.Entities
             return porQuitar;
         }
 
-        public static void IQuitarAncestros(SortedList<long,Lista> dic,Lista lista)
+        public static void IQuitarAncestros(SortedList<long, Lista> dic, Lista lista)
         {
             dic.Remove(lista);
-            foreach(var item in lista.ListasHerencia)
+            foreach (var item in lista.ListasHerencia)
             {
                 IQuitarAncestros(dic, item.Value);
             }

@@ -21,8 +21,8 @@
 @code{
     Data Data { get; set; }
     protected override async Task OnInitializedAsync()
-    {//new Data(); //
-        Data = new Data(await DataSave.Load(JS));
+    {//
+        Data =new Data(); // new Data(await DataSave.Load(JS));
         base.OnInitialized();
     }
 }
