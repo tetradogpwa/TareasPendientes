@@ -57,13 +57,10 @@ namespace TareasPendientes.Blazor2.Extension
         {
             await js.InvokeVoidAsync("alert", mensaje);
         }
-        public static async Task DownloadFileAsync(this IJSRuntime js, string fileName, object data, string metaType)
+        public static async Task DownloadFileStringAsync(this IJSRuntime js, string fileName, string data,string fileType,string charset="utf-8")
         {
-            if(data is string)
-            {
-                data = System.Text.ASCIIEncoding.ASCII.GetBytes(data as string);
-            }
-            await js.InvokeVoidAsync("FileSaveAs", fileName, data, metaType);
+        
+            await js.InvokeVoidAsync("StringSaveAsFile", fileName, data,fileType,charset);
             //da problemas pone que no se ha podido descargar...
         }
         public static async Task SaveLocalStorageAsync(this IJSRuntime js, string id, string data)

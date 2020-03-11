@@ -1,11 +1,21 @@
 ﻿@page "/GestionDatos"
+
 @using Blazor.FileReader
-@using System.IO;
+@using TareasPendientes.Helpers
+
+@inject IDataSave  DataSave
 @inject IFileReaderService fileReaderService
 @inject IJSRuntime JS
+
 <h3>Gestión Datos</h3>
-<text>Cargar </text><input type="file" @ref="inpCargarBD" @onchange="CargarBD" accept=".json" /><br/><br/>
-<button class="btn btn-success" @onclick="@(()=>JS.DownloadFileAsync("datos.json",Datos.ToJson(),"application/json"))">Descargar</button>
+<text>Cargar </text>
+<input type="file" @ref="inpCargarBD" @onchange="CargarBD" accept=".json" />
+<br />
+<br />
+<button class="btn btn-success" @onclick="@(()=>JS.DownloadFileStringAsync("datos.json",Datos.ToJson(),"application/json","utf-32"))">Descargar</button>
+<br />
+<br />
+<button class="btn btn-success" type="button" @onclick="@(()=>GuardaDatos())">Guardar datos</button>
 @code {
     [CascadingParameter] Data Datos { get; set; }
     ElementReference inpCargarBD;
@@ -17,12 +27,25 @@
         {
             try
             {
-                Datos.Load(System.Text.ASCIIEncoding.ASCII.GetString(await file.Read(BUFFER)));
+                Datos.Load(System.Text.ASCIIEncoding.UTF32.GetString(await file.Read(BUFFER)));
             }
-            catch(Exception ex) {
+            catch (Exception ex)
+            {
                 await JS.MostrarMensajeAsync($"Ha ocurrido un error al cargar el archivo....\n {ex.Message}");
             }
 
+        }
+    }
+    async Task GuardaDatos()
+    {
+        try
+        {
+            await DataSave.Save(JS, Datos.ToJson());
+            await JS.MostrarMensajeAsync("Se ha guardado correctamente!");
+        }
+        catch (Exception ex)
+        {
+            await JS.MostrarMensajeAsync($"Ha ocurrido un problema al guardar...{ex.Message}");
         }
     }
 }
