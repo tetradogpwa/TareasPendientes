@@ -30,7 +30,7 @@ Categoria[] categoriasJson;
         }
 [JsonIgnore]
         public SortedList<long,Lista> Listas { get; set; }
-[JsonName("Listas")]
+[JsonPropertyName("Listas")]
 public Lista[] IListas{
 
 
@@ -40,7 +40,7 @@ set=>listasJson=value;
 }
 [JsonIgnore]
         public SortedList<long, Categoria> Categorias { get; set; }
-[JsonName("Categorias")]
+[JsonPropertyName("Categorias")]
 public Categoria[] ICategorias{
 
 
