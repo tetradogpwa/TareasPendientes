@@ -5,12 +5,15 @@ using System.Threading.Tasks;
 using TareasPendientes.Blazor2.Extension;
 using System.Text.Json;
 using Gabriel.Cat.S.Extension;
+using System.Text.Json.Serialization;
+using Newtonsoft.Json;
+
 namespace TareasPendientes.Blazor2.Entities
 {
     public class Data
     {
-Lista[] listasJson;
-Categoria[] categoriasJson;
+        Lista[] listasJson;
+        Categoria[] categoriasJson;
         public Data()
         {
             Listas = new SortedList<long, Lista>();
@@ -20,73 +23,79 @@ Categoria[] categoriasJson;
         }
         public Data(string json) : this()
         {
-            
-           Data aux=JsonSerialitzer.Deserialitzer<Data>(json);
-
-           listasJson=aux.listasJson;
-           categoriasJson=aux.categoriasJson;
-           FinishToLoad();
+            LoadJson(json);
 
         }
-[JsonIgnore]
-        public SortedList<long,Lista> Listas { get; set; }
-[JsonPropertyName("Listas")]
-public Lista[] IListas{
 
 
-get=>Listas.GetValues();
-set=>listasJson=value;
 
-}
-[JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
+        public SortedList<long, Lista> Listas { get; set; }
+        [JsonPropertyName("Listas")]
+        public Lista[] IListas
+        {
+
+
+            get => Listas.GetValues();
+            set => listasJson = value;
+
+        }
+        [System.Text.Json.Serialization.JsonIgnore]
         public SortedList<long, Categoria> Categorias { get; set; }
-[JsonPropertyName("Categorias")]
-public Categoria[] ICategorias{
+        [JsonPropertyName("Categorias")]
+        public Categoria[] ICategorias
+        {
 
 
-get=>Categorias.GetValues();
-set=>categoriasJson=value;
+            get => Categorias.GetValues();
+            set => categoriasJson = value;
 
-}
+        }
         public string ToJson()
         {
-            return JsonSerializer.Serialize<Data>(this);
+            return System.Text.Json.JsonSerializer.Serialize<Data>(this);
         }
-        private void FinishToLoad()
+        public void LoadJson(string json)
         {
-          
-            SortedList<long, Tarea> tareas = new SortedList<long, Tarea>();
-
-            if (categoriasJson!=null)
+            Data aux;
+            SortedList<long, Tarea> tareas;
+            
+            
+            
+            if (!string.IsNullOrEmpty(json))
             {
                 Listas.Clear();
                 Categorias.Clear();
+                aux = System.Text.Json.JsonSerializer.Deserialize<Data>(json);
+                tareas = new SortedList<long, Tarea>();
 
-                for (int i = 0; i < listasJson.Length; i++)
+               
+
+                for (int i = 0; i < aux.listasJson.Length; i++)
                 {
-                    Listas.Add(listasJson[i].Id, listasJson[i]);
+                    Listas.Add(aux.listasJson[i]);
                 }
-                for (int i = 0; i < listasJson.Length; i++)
+                for (int i = 0; i < aux.listasJson.Length; i++)
                 {
-                    tareas.AddRange(listasJson[i].Tareas.Values);
+                    tareas.AddRange(aux.listasJson[i].Tareas.Values);
                 }
-                for (int i = 0; i < listasJson.Length; i++)
+                for (int i = 0; i < aux.listasJson.Length; i++)
                 {
-                    foreach (var item in listasJson[i].Tareas)
-                        listasJson[i].TareasOcultas[item.Key] = tareas[item.Key];
-                    foreach (var item in listasJson[i].ListasHerencia)
-                        listasJson[i].ListasHerencia[item.Key] = Listas[item.Key];
+                    foreach (var item in aux.listasJson[i].TareasOcultas)
+                        aux.listasJson[i].TareasOcultas[item.Key] = tareas[item.Key];
+                    foreach (var item in aux.listasJson[i].ListasHerencia)
+                        aux.listasJson[i].ListasHerencia[item.Key] = Listas[item.Key];
                 }
-                for (int i = 0; i < categoriasJson.Length; i++)
+                for (int i = 0; i < aux.categoriasJson.Length; i++)
                 {
-                    Categorias.Add(categoriasJson[i].Id, categoriasJson[i]);
-                    foreach (var lst in categoriasJson[i].Listas)
-                        categoriasJson[i].Listas[lst.Key] = Listas[lst.Key];
+                    Categorias.Add(aux.categoriasJson[i]);
+                    foreach (var lst in aux.categoriasJson[i].Listas)
+                        aux.categoriasJson[i].Listas[lst.Key] = Listas[lst.Key];
                 }
-categoriasJson=null;
-listasJson=null;
+
                 Console.WriteLine("Se ha acabado de cargar correctamente :)");
             }
+            else Console.WriteLine("No hay datos a cargar");
         }
     }
 }

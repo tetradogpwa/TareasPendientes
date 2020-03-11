@@ -11,7 +11,7 @@ namespace TareasPendientes.Blazor2.Entities
 {
     public class Lista:Base, IEnumerable<Tarea>
     {
-        public Lista() : this("") { }
+        public Lista() : this("") { Console.WriteLine("Lista creada"); }
         public Lista(string nombre,long id=-1):base(nombre,id)
         {
             Tareas = new SortedList<long, Tarea>();
@@ -31,10 +31,8 @@ namespace TareasPendientes.Blazor2.Entities
             set
             {
                 Tareas.Clear();
-                for(int i = 0; i < value.Length; i++)
-                {
-                    Tareas.Add(value[i]);
-                }
+                Tareas.AddRange(value);
+                Console.WriteLine("Cargadas tareas lista");
             }
         }
         [JsonIgnore]
@@ -49,6 +47,7 @@ namespace TareasPendientes.Blazor2.Entities
                 {
                     ListasHerencia.Add(value[i],null);
                 }
+                Console.WriteLine("Cargadas listas herencia");
             }
         }
         [JsonIgnore]
@@ -63,6 +62,7 @@ namespace TareasPendientes.Blazor2.Entities
                 {
                     TareasOcultas.Add(value[i], null);
                 }
+                Console.WriteLine("Cargadas tareas ocultas");
             }
         }
         [JsonIgnore]
@@ -78,6 +78,7 @@ namespace TareasPendientes.Blazor2.Entities
                 {
                     TareasHechas.Add(value[i], default);
                 }
+                Console.WriteLine("Cargadas tareas hechas long");
             }
         }
         public DateTime[] ITareasHechasFecha
@@ -89,8 +90,10 @@ namespace TareasPendientes.Blazor2.Entities
                 TareasHechas.Clear();
                 foreach(var fechas in TareasHechas)
                 {
-                    TareasHechas[fechas.Key] = value[pos++];
+                    TareasHechas[fechas.Key] = value[pos];
+                    pos++;
                 }
+                Console.WriteLine("Cargadas tareas hechas datetime");
             }
         }
 

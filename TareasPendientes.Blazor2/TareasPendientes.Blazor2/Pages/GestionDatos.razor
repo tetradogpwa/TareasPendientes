@@ -12,7 +12,7 @@
 <input type="file" @ref="inpCargarBD" @onchange="CargarBD" accept=".json" />
 <br />
 <br />
-<button class="btn btn-success" @onclick="@(()=>JS.DownloadFileStringAsync("datos.json",Datos.ToJson(),"application/json","utf-32"))">Descargar</button>
+<button class="btn btn-success" @onclick="@(()=>JS.DownloadFileStringAsync("datos.json",Datos.ToJson(),"application/json","utf-8"))">Descargar</button>
 <br />
 <br />
 <button class="btn btn-success" type="button" @onclick="@(()=>GuardaDatos())">Guardar datos</button>
@@ -27,7 +27,7 @@
         {
             try
             {
-                Datos.Load(System.Text.ASCIIEncoding.UTF32.GetString(await file.Read(BUFFER)));
+                Datos.LoadJson(System.Text.ASCIIEncoding.UTF8.GetString(await file.Read(BUFFER)));
             }
             catch (Exception ex)
             {
