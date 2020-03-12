@@ -12,8 +12,9 @@ namespace TareasPendientes.Blazor2.Entities
 {
     public class Categoria : Base,IElementoBinarioComplejo
     {
-        public class CategoriaBinaria : ElementoComplejoBinario
+         class CategoriaBinaria : ElementoComplejoBinario
         {
+            const int ID = 0, NAME = ID + 1, IDLISTAS = NAME + 1,TOTAL=IDLISTAS+1;
             public  CategoriaBinaria():base(new ElementoBinario[] {
                 ElementoBinario.ElementosTipoAceptado(Gabriel.Cat.S.Utilitats.Serializar.TiposAceptados.Long),
                 ElementoBinario.ElementosTipoAceptado(Gabriel.Cat.S.Utilitats.Serializar.TiposAceptados.String),
@@ -22,24 +23,33 @@ namespace TareasPendientes.Blazor2.Entities
             }){}
             protected override IList IGetPartsObject(object obj)
             {
+                Console.WriteLine("Inicio Serializar Categoria");
+                object[] partes;
                 Categoria categoria = obj as Categoria;
                 if (categoria == null)
                     throw new Exception("El tipo de objeto valido es Categoria");
-                return new object[]{categoria.Id,categoria.Name,categoria.Listas.GetKeys() };
+                partes = new object[TOTAL];
+                partes[ID] = categoria.Id;
+                partes[NAME] = categoria.Name;
+                partes[IDLISTAS] = categoria.Listas.GetKeys();
+                Console.WriteLine("Fin Serializar Categoria");
+                return partes;
             }
 
             protected override object JGetObject(MemoryStream bytes)
             {
+                Console.WriteLine("Inicio deserializar Categoria");
                 object[] partes = base.GetPartsObject(bytes);
-                long[] ids = (long[])partes[2];
-                Categoria categoria = new Categoria(partes[1] as string, (long)partes[0]);
+                long[] ids = (long[])partes[IDLISTAS];
+                Categoria categoria = new Categoria((string)partes[NAME], (long)partes[ID]);
                 categoria.Listas.AddRange(ids);
+                Console.WriteLine("Fin deserializar Categoria");
                 return categoria;
 
             }
         }
-        public static readonly ElementoBinario Serializador = new CategoriaBinaria();
-        public Categoria() : this("") { }
+       internal static readonly ElementoBinario Serializador = new CategoriaBinaria();
+    
         public Categoria(string nombre, long id = -1) : base(nombre, id)
         {
             Listas = new SortedList<long, Lista>();

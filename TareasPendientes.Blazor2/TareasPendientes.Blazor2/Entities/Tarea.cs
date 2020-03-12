@@ -10,29 +10,51 @@ namespace TareasPendientes.Blazor2.Entities
 {
     public class Tarea:Base,IElementoBinarioComplejo
     {
-        public class TareaBinaria : ElementoComplejoBinario
+        class TareaBinaria : ElementoComplejoBinario
         {
-            public TareaBinaria():base(new ElementoBinario[] { 
+            const int ID = 0, NAME = ID + 1, TOTAL = NAME + 1;
+            public TareaBinaria() : base(new ElementoBinario[] {
+
                 ElementoBinario.ElementosTipoAceptado(Gabriel.Cat.S.Utilitats.Serializar.TiposAceptados.Long),
-                ElementoBinario.ElementosTipoAceptado(Gabriel.Cat.S.Utilitats.Serializar.TiposAceptados.String)}) 
+
+                ElementoBinario.ElementosTipoAceptado(Gabriel.Cat.S.Utilitats.Serializar.TiposAceptados.String)})
+
             { }
+
             protected override IList IGetPartsObject(object obj)
             {
+                Console.WriteLine("Inicio Serializar Tarea");
+                object[] partes;
                 Tarea tarea = obj as Tarea;
+
                 if (tarea == null)
                     throw new Exception("El tipo valido es Tarea");
 
-                return new object[] {tarea.Id,tarea.Name };
+                partes = new object[TOTAL];
+                partes[ID] = tarea.Id;
+                partes[NAME] = tarea.Name;
+                Console.WriteLine("Fin Serializar Tarea");
+                return partes;
+
             }
+
+
 
             protected override object JGetObject(MemoryStream bytes)
             {
+                Console.WriteLine("Inicio Deserializar Tarea");
                 object[] partes = base.GetPartsObject(bytes);
-                return new Tarea(partes[1] as string,(long)partes[1]);
+
+                Tarea tarea= new Tarea((string)partes[NAME], (long)partes[ID]);
+
+                Console.WriteLine("Fin Deserializar Tarea");
+
+                return tarea;
+
             }
+
         }
-        public static readonly ElementoBinario Serializador = new TareaBinaria();
-        public Tarea() : this("") { }
+        internal static readonly ElementoBinario Serializador = new TareaBinaria();
         public Tarea(string nombre,long id = -1) : base(nombre, id) { }
 
         ElementoBinario IElementoBinarioComplejo.Serialitzer => Serializador;

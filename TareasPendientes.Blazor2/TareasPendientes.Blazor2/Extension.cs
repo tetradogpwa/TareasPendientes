@@ -1,5 +1,6 @@
 ﻿using Blazor.FileReader;
 using Gabriel.Cat.S.Binaris;
+using Gabriel.Cat.S.Extension;
 using Microsoft.JSInterop;
 using System;
 using System.Collections.Generic;
@@ -49,8 +50,16 @@ namespace TareasPendientes.Blazor2.Extension
         public static void RemoveRange<T>(this SortedList<long, T> dic, IList<T> values) where T : Base
         {
             if (values != null)
-                foreach (T value in values)
-                    dic.Remove(value.Id);
+                for (int i = 0; i < values.Count; i++)
+                    dic.Remove(values[i].Id);
+        }
+        public static void SetValues<T>(this SortedList<long,T> dic,SortedList<long,T> values)
+        {
+            long[] ids;
+            ids = dic.GetKeys();
+            for (int i = 0; i < ids.Length; i++)
+                if(values.ContainsKey(ids[i]))
+                   dic[ids[i]] = values[ids[i]];
         }
         public static SortedList<TKey,TValue> Clone<TKey,TValue>(this SortedList<TKey,TValue> dic)
         {

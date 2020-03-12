@@ -21,10 +21,11 @@
     </div>
 </div>
 @code{
-    Data Data { get; set; }
+
+    Data Data;
+
     protected override async Task OnInitializedAsync()
     {
         Data =new Data(await DataSave.Load(JS));
-        base.OnInitialized();
     }
 }
