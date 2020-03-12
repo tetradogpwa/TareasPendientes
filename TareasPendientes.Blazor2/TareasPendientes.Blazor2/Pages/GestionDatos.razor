@@ -9,10 +9,10 @@
 
 <h3>Gestión Datos</h3>
 <text>Cargar </text>
-<input type="file" @ref="inpCargarBD" @onchange="CargarBD" accept=".json" />
+<input type="file" @ref="inpCargarBD" @onchange="CargarBD" accept=".bin" />
 <br />
 <br />
-<button class="btn btn-success" @onclick="@(()=>JS.DownloadFileStringAsync("datos.json",Datos.ToJson(),"application/json","utf-8"))">Descargar</button>
+<button class="btn btn-success" @onclick="@(()=>JS.DownloadFileStringAsync("datos.base64",Datos.SaveStringBase64(),"Application/Base64","utf-8"))">Descargar</button>
 <br />
 <br />
 <button class="btn btn-success" type="button" @onclick="@(()=>GuardaDatos())">Guardar datos</button>
@@ -27,7 +27,7 @@
         {
             try
             {
-                Datos.LoadJson(System.Text.ASCIIEncoding.UTF8.GetString(await file.Read(BUFFER)));
+                Datos.Load(System.Text.ASCIIEncoding.UTF8.GetString(await file.Read(BUFFER)));
             }
             catch (Exception ex)
             {
@@ -40,7 +40,7 @@
     {
         try
         {
-            await DataSave.Save(JS, Datos.ToJson());
+            await DataSave.Save(JS, Datos.SaveStringBase64());
             await JS.MostrarMensajeAsync("Se ha guardado correctamente!");
         }
         catch (Exception ex)

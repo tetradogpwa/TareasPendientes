@@ -5,13 +5,67 @@ using System.Linq;
 using System.Threading.Tasks;
 using TareasPendientes.Blazor2.Extension;
 using Gabriel.Cat.S.Extension;
-using Newtonsoft.Json;
+using Gabriel.Cat.S.Binaris;
+using System.IO;
 
 namespace TareasPendientes.Blazor2.Entities
 {
-    public class Lista : Base, IEnumerable<Tarea>
+    public class Lista : Base, IEnumerable<Tarea>,IElementoBinarioComplejo
     {
-        public Lista() : this("") { Console.WriteLine("Lista creada"); }
+       public class ListaBinaria : ElementoComplejoBinario
+        {
+            public ListaBinaria() : base(new ElementoBinario[] {
+
+                ElementoBinario.ElementosTipoAceptado(Gabriel.Cat.S.Utilitats.Serializar.TiposAceptados.Long),
+                ElementoBinario.ElementosTipoAceptado(Gabriel.Cat.S.Utilitats.Serializar.TiposAceptados.String),
+
+                new ElementoIListBinario<Tarea>(Tarea.Serializador),
+
+                ElementoIListBinario<long>.ElementosTipoAceptado<long>(Gabriel.Cat.S.Utilitats.Serializar.TiposAceptados.Long),
+                ElementoIListBinario<DateTime>.ElementosTipoAceptado<DateTime>(Gabriel.Cat.S.Utilitats.Serializar.TiposAceptados.DateTime),
+
+                ElementoIListBinario<long>.ElementosTipoAceptado<long>(Gabriel.Cat.S.Utilitats.Serializar.TiposAceptados.Long),
+
+                ElementoIListBinario<long>.ElementosTipoAceptado<long>(Gabriel.Cat.S.Utilitats.Serializar.TiposAceptados.Long)
+            })
+            {
+            }
+
+            protected override IList IGetPartsObject(object obj)
+            {
+                Lista lista = obj as Lista;
+                if (lista == null)
+                    throw new Exception("El tipo de objeto valido es Lista");
+                return new object[] { 
+                    lista.Id,lista.Name,
+                    lista.Tareas.GetValues(),
+                    lista.TareasHechas.GetKeys(),lista.TareasHechas.GetValues(),
+                    lista.TareasOcultas.GetKeys(),
+                    lista.ListasHerencia.GetKeys() 
+                };
+            }
+
+            protected override object JGetObject(MemoryStream bytes)
+            {
+                object[] partes = base.GetPartsObject(bytes);
+                Lista lista = new Lista(partes[1] as string, (long)partes[0]);
+                Tarea[] tareas =(Tarea[]) partes[2];
+                long[] idTareasHechas = (long[])partes[3];
+                DateTime[] fechasTareasHechas = (DateTime[])partes[4];
+                long[] idTareasOcultas = (long[])partes[5];
+                long[] idListasHeredadas = (long[])partes[6];
+
+                lista.Tareas.AddRange(tareas);
+                lista.TareasOcultas.AddRange(idTareasOcultas);
+                lista.ListasHerencia.AddRange(idListasHeredadas);
+                for (int i = 0; i < idTareasHechas.Length; i++)
+                    lista.TareasHechas.Add(idTareasHechas[i], fechasTareasHechas[i]);
+
+                return lista;
+            }
+        }
+        public static readonly ElementoBinario Serializador = new ListaBinaria();
+        public Lista() : this("") {  }
         public Lista(string nombre, long id = -1) : base(nombre, id)
         {
             Tareas = new SortedList<long, Tarea>();
@@ -23,84 +77,19 @@ namespace TareasPendientes.Blazor2.Entities
         {
             Tareas.AddRange(listaTemporal);
         }
-        [JsonIgnore]
+
         public SortedList<long, Tarea> Tareas { get; set; }
-        public Tarea[] ITareas
-        {
-            get { return Tareas.GetValues(); }
-            set
-            {
-                Tareas.Clear();
-                if (value != null)
-                    Tareas.AddRange(value);
-                Console.WriteLine("Cargadas tareas lista");
-            }
-        }
-        [JsonIgnore]
+
+
         public SortedList<long, Lista> ListasHerencia { get; set; }
-        public long[] IListasHerencia
-        {
-            get { return ListasHerencia.GetKeys(); }
-            set
-            {
-                ListasHerencia.Clear();
-                if (value != null)
-                    for (int i = 0; i < value.Length; i++)
-                    {
-                        ListasHerencia.Add(value[i], null);
-                    }
-                Console.WriteLine("Cargadas listas herencia");
-            }
-        }
-        [JsonIgnore]
+  
+   
         public SortedList<long, Tarea> TareasOcultas { get; set; }
-        public IList<long> ITareasOcultas
-        {
-            get { return TareasOcultas.GetKeys(); }
-            set
-            {
-                TareasOcultas.Clear();
-                if (value != null)
-                    for (int i = 0; i < value.Count; i++)
-                    {
-                        TareasOcultas.Add(value[i], null);
-                    }
-                Console.WriteLine("Cargadas tareas ocultas");
-            }
-        }
-        [JsonIgnore]
+
+     
         public SortedList<long, DateTime> TareasHechas { get; set; }
 
-        public IList<long> ITareasHechasID
-        {
-            get { return TareasHechas.GetKeys(); }
-            set
-            {
-                TareasHechas.Clear();
-                if (value != null)
-                    for (int i = 0; i < value.Count; i++)
-                    {
-                        TareasHechas.Add(value[i], default);
-                    }
-                Console.WriteLine("Cargadas tareas hechas long");
-            }
-        }
-        public IList<DateTime> ITareasHechasFecha
-        {
-            get { return TareasHechas.GetValues(); }
-            set
-            {
-                int pos = 0;
-                TareasHechas.Clear();
-                if (value != null)
-                    foreach (var fechas in TareasHechas)
-                    {
-                        TareasHechas[fechas.Key] = value[pos];
-                        pos++;
-                    }
-                Console.WriteLine("Cargadas tareas hechas datetime");
-            }
-        }
+        ElementoBinario IElementoBinarioComplejo.Serialitzer => Serializador;
 
         public void Clear()
         {

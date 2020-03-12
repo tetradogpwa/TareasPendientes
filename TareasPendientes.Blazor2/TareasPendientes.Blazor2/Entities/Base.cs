@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 
 namespace TareasPendientes.Blazor2.Entities
 {
@@ -21,7 +20,6 @@ namespace TareasPendientes.Blazor2.Entities
         public long Id { get; set; }
         public string Name { get; set; }
 
-        [JsonIgnore]
         public bool HasName => !string.IsNullOrEmpty(Name) && !string.IsNullOrWhiteSpace(Name);
 
         public override string ToString()

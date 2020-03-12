@@ -4,7 +4,11 @@ function StringSaveAsFile(fileName, fileContent, mediaType = "text/plain", chars
         type: mediaType + ";charset=" + charset
     }), fileName);
 }
-
+function SaveAsFile(fileName, fileContent) {
+    saveAs(new Blob([fileContent], {
+        type: "application/octet-stream"
+    }), fileName);
+}
 (function (global, factory) {
     if (typeof define === "function" && define.amd) {
         define([], factory);

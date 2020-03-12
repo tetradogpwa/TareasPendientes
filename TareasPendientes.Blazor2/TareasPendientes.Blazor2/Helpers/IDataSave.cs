@@ -8,7 +8,7 @@ namespace TareasPendientes.Helpers
 {
     public interface IDataSave
     {
-        Task Save(IJSRuntime js,string dataXML);
+        Task Save(IJSRuntime js,string data);
         Task<string> Load(IJSRuntime js);
     }
 }

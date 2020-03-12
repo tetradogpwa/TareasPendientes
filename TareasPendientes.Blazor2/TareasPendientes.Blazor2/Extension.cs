@@ -1,4 +1,5 @@
 ﻿using Blazor.FileReader;
+using Gabriel.Cat.S.Binaris;
 using Microsoft.JSInterop;
 using System;
 using System.Collections.Generic;
@@ -36,8 +37,14 @@ namespace TareasPendientes.Blazor2.Extension
         public static void AddRange<T>(this SortedList<long, T> dic, IList<T> values) where T : Base
         {
             if (values != null)
-                foreach (T value in values)
-                    dic.Add(value.Id, value);
+               for(int i=0;i<values.Count;i++)
+                    dic.Add(values[i].Id, values[i]);
+        }
+        public static void AddRange<T>(this SortedList<long, T> dic, IList<long> ids) where T : Base
+        {
+            if (ids != null)
+                for (int i = 0; i < ids.Count; i++)
+                    dic.Add(ids[i], default);
         }
         public static void RemoveRange<T>(this SortedList<long, T> dic, IList<T> values) where T : Base
         {
@@ -61,7 +68,14 @@ namespace TareasPendientes.Blazor2.Extension
         {
         
             await js.InvokeVoidAsync("StringSaveAsFile", fileName, data,fileType,charset);
-            //da problemas pone que no se ha podido descargar...
+        }
+        public static async Task DownloadFileBinaryAsync(this IJSRuntime js, string fileName, IElementoBinarioComplejo data)
+        {
+            await DownloadFileBinaryAsync(js, fileName, data.Serialitzer.GetBytes(data));
+        }
+        public static async Task DownloadFileBinaryAsync(this IJSRuntime js,string fileName,byte[] data)
+        {//no funciona
+            await js.InvokeVoidAsync("SaveAsFile", fileName, data);
         }
         public static async Task SaveLocalStorageAsync(this IJSRuntime js, string id, string data)
         {
