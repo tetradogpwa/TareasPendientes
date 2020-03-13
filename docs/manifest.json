@@ -2,7 +2,7 @@
     "name": "Tareas Pendientes",
     "short_name": "Tareas",
     "lang": "es",
-    "start_url": "/TareasPendientes/",
+    "start_url": "/TareasPendientes/docs/",
     "display": "standalone",
 "icons": [
     {

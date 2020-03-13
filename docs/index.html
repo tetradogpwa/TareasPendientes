@@ -18,6 +18,11 @@
         <a href="" class="reload">Recargar</a>
         <a class="dismiss">🗙</a>
     </div>
+    <script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/TareasPendientes/docs/sw.js');
+    }
+    </script>
     <script src="ImportExport.js"></script>
     <script src="LocalStorage.js"></script>
     <script src="_framework/blazor.webassembly.js"></script>
