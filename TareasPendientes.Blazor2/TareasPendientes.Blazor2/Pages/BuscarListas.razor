@@ -1,0 +1,40 @@
+﻿@page "/BuscarListas"
+@page "/BuscarListas/{TextoABuscar}"
+@if (Data != null)
+{
+    <h3>Buscar Listas</h3>
+    <input class="TodoElEspacio" type="text" @bind="TextoABuscar" @onkeypress="@((KeyboardEventArgs k)=> { if (k.Key == "Enter") Buscar(); })" placeholder="Texto titulo lista" />
+    @if (Listas != null)
+    {
+        <ul>
+            @for (int i = 0; i < Listas.Count; i++)
+            {
+                <a href="/@Listas[i].Id">@Listas[i].ToString()</a>
+                <br />
+            }
+        </ul>
+    }
+}
+@code {
+    [CascadingParameter] Data Data { get; set; }
+    [Parameter] public string TextoABuscar { get; set; }
+    List<Lista> Listas { get; set; } = null;
+
+    void Buscar()
+    {
+        Lista lst;
+        if (!string.IsNullOrEmpty(TextoABuscar) && !string.IsNullOrWhiteSpace(TextoABuscar))
+        {
+            TextoABuscar = TextoABuscar.Trim();
+
+            Listas = new List<Lista>();
+            for (int i = 0; i < Data.Listas.Count; i++)
+            {
+                lst = Data.Listas.GetValueAt(i);
+                if (lst.ToString().Contains(TextoABuscar))
+                    Listas.Add(lst);
+            }
+        }
+    }
+
+}
