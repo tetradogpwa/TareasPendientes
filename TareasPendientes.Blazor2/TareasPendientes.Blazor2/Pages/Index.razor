@@ -1,37 +1,38 @@
 ﻿@page "/"
 @page "/{IdCategoria:long}/{IdLista:long}"
+@page "/{IdLista:long}"
 @if (Data != null)
 {
-<div id="Main">
-    <div id="Selector-Listas">
-        <SelectBase Class="Select-Categorias TodoElEspacio" List="@Data.Categorias.Select((c) => c.Value as Base).ToArray()" OnSeleccionChange="@((c) => { Categoria = c as Categoria; ListaActual = null; })" SelectedItem="Categoria" />
-        <div class="Añadir-Lista">
-            <input class="Crear-Lista TodoElEspacio" type="text" @bind="@NombreTemporalLista" @onkeypress="@((KeyboardEventArgs e) => { if (e.Key == "Enter") AñadirLista(); })" title="Pulsa ENTER para añadir la lista" />
-            @foreach (var lst in Categoria.Listas)
-            {
-                <br /> <a href="/@Categoria.Id/@lst.Value.Id">@lst.Value.Name</a>
-            }
-        </div>
-    </div>
-    @if (ListaActual != null)
-    {
-        <div id="Visor-Lista">
-            <div>
-                <input class="Editar-NombreLista " type="text" @bind="@ListaActual.Name" title="Pulsa ENTER para aplicar cambios" placeholder="Nombre Lista" />
-                <input class="btn btn-success Crear-Tarea" type="button" value="+" @onclick="@(() => ListaActual.Tareas.Add(new Tarea("")))" />
-                <input class="CheckEditar-Tareas" type="checkbox" @bind="@EditMode" />
+    <div id="Main">
+        <div id="Selector-Listas">
+            <SelectBase Class="Select-Categorias TodoElEspacio" List="@Data.Categorias.Select((c) => c.Value as Base).ToArray()" OnSeleccionChange="@((c) => { Categoria = c as Categoria; ListaActual = null; })" SelectedItem="Categoria" />
+            <div class="Añadir-Lista">
+                <input class="Crear-Lista TodoElEspacio" type="text" @bind="@NombreTemporalLista" @onkeypress="@((KeyboardEventArgs e) => { if (e.Key == "Enter") AñadirLista(); })" title="Pulsa ENTER para añadir la lista" />
+                @foreach (var lst in Categoria.Listas)
+                {
+                    <br /> <a href="/@Categoria.Id/@lst.Value.Id">@lst.Value.Name</a>
+                }
             </div>
-            @if (EditMode)
-            {
-                <EditorTareasLista Lista="ListaActual" />
-            }
-            else
-            {
-                <VisorLista Lista="ListaActual" MostrarCheck="true" />
-            }
         </div>
-    }
-</div>
+        @if (ListaActual != null)
+        {
+            <div id="Visor-Lista">
+                <div>
+                    <input class="Editar-NombreLista " type="text" @bind="@ListaActual.Name" title="Pulsa ENTER para aplicar cambios" placeholder="Nombre Lista" />
+                    <input class="btn btn-success Crear-Tarea" type="button" value="+" @onclick="@(() => ListaActual.Tareas.Add(new Tarea("")))" />
+                    <input class="CheckEditar-Tareas" type="checkbox" @bind="@EditMode" />
+                </div>
+                @if (EditMode)
+                {
+                    <EditorTareasLista Lista="ListaActual" />
+                }
+                else
+                {
+                    <VisorLista Lista="ListaActual" MostrarCheck="true" />
+                }
+            </div>
+        }
+    </div>
 }
 @code{
     [CascadingParameter] Data Data { get; set; }

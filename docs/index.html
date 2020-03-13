@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
     <title>Tareas Pendientes</title>
-    <base href="https://tetradogpwa.github.io/TareasPendientes/docs/" />
+    <base href="/" />
     <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet" />
     <link href="css/site.css" rel="stylesheet" />
 </head>
@@ -19,10 +19,15 @@
         <a class="dismiss">🗙</a>
     </div>
     <script>
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/TareasPendientes/docs/sw.js');
-    }
+        window.onload=()=>{
+            if ('serviceWorker' in navigator) {
+
+                navigator.serviceWorker.register('/TareasPendientes/docs/sw.js');
+
+            }
+        };
     </script>
+    <script src="sw.js"></script>
     <script src="ImportExport.js"></script>
     <script src="LocalStorage.js"></script>
     <script src="_framework/blazor.webassembly.js"></script>

@@ -9,7 +9,7 @@
 
 <h3>Gestión Datos</h3>
 <text>Cargar </text>
-<input type="file" @ref="inpCargarBD" @onchange="CargarBD" accept=".bin" />
+<input type="file" @ref="inpCargarBD" @onchange="CargarBD" accept=".base64" />
 <br />
 <br />
 <button class="btn btn-success" @onclick="@(()=>JS.DownloadFileStringAsync("datos.base64",Datos.SaveStringBase64(),"Application/Base64","utf-8"))">Descargar</button>
@@ -28,6 +28,7 @@
             try
             {
                 Datos.Load(System.Text.ASCIIEncoding.UTF8.GetString(await file.Read(BUFFER)));
+                await JS.MostrarMensajeAsync("Se ha cargado correctamente!");
             }
             catch (Exception ex)
             {
