@@ -7,11 +7,11 @@
     @if (HayTareas)
     {<h4>Listas</h4>
         <ul class="Lista-Listas">
-            @foreach (var lst in Datos.Listas)
+            @for(int i=0;i<Datos.Listas.Count;i++)
             {
-                if (lst.Value.Tareas.Count > 0)
+                if (Datos.Listas.GetValueAt(i).Tareas.Count > 0)
                 {
-                    <li @onclick="@(() => ListaSeleccionada(lst.Value))">@lst.Value.ToString()</li>
+                    <li @onclick="@(() => ListaSeleccionada(Datos.Listas.GetValueAt(i)))">@Datos.Listas.GetValueAt(i).ToString()</li>
                 }
             }
         </ul>
@@ -25,11 +25,11 @@
                 <h4>Listas destino</h4>
                 <h5>'@TareaSeleccionada.ToString()'</h5>
                 <ul>
-                    @foreach (var lst in Datos.Listas)
+                    @for (int i = 0; i < Datos.Listas.Count; i++)
                     {
-                        if (lst.Value.Id != ListaActual.Id)
+                        if (Datos.Listas.GetValueAt(i).Id != ListaActual.Id)
                         {
-                            <li @onclick="@(() => PreguntarSiEstaSeguro(lst.Value))">@lst.Value.Name</li>
+                            <li @onclick="@(() => PreguntarSiEstaSeguro(Datos.Listas.GetValueAt(i)))">@Datos.Listas.GetValueAt(i).ToString()</li>
                         }
                     }
                 </ul>
@@ -61,12 +61,8 @@
             get
             {
                 bool hay = false;
-
-                Datos.Listas.WhileEach((lst) =>
-                {
-                    hay = lst.Value.Tareas.Count > 0;
-                    return !hay;
-                });
+                for(int i=0;i<Datos.Listas.Count&&!hay;i++)
+                      hay=Datos.Listas.GetValueAt(i).Tareas.Count != 0;
                 return hay;
             }
         }

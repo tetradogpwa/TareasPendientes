@@ -8,9 +8,9 @@
             <SelectBase Class="Select-Categorias TodoElEspacio" List="@Data.Categorias.Select((c) => c.Value as Base).ToArray()" OnSeleccionChange="@((c) => { Categoria = c as Categoria; ListaActual = null; })" SelectedItem="Categoria" />
             <div class="Añadir-Lista">
                 <input class="Crear-Lista TodoElEspacio" type="text" @bind="@NombreTemporalLista" @onkeypress="@((KeyboardEventArgs e) => { if (e.Key == "Enter") AñadirLista(); })" title="Pulsa ENTER para añadir la lista" />
-                @foreach (var lst in Categoria.Listas)
+                @for(int i=0;i<Data.Listas.Count;i++)
                 {
-                    <br /> <a href="/@Categoria.Id/@lst.Value.Id">@lst.Value.Name</a>
+                    <br /> <a href="/@Categoria.Id/@Data.Listas.GetValueAt(i).Id">@Data.Listas.GetValueAt(i).ToString()</a>
                 }
             </div>
         </div>

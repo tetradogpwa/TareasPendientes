@@ -7,10 +7,10 @@
         <button class="btn btn-success" type="button" @onclick="AñadirCategoria">Añadir</button>
     </div>
     <div>
-        @foreach (var categoria in Data.Categorias)
+        @for (int i=0;i<Data.Categorias.Count;i++)
         {
             <br />
-            <input type="text" @ondblclick="@(() => PreguntarSiQuiereBorrarCategoria(categoria.Value))" @bind="@categoria.Value.Name" placeholder="@categoria.Value.ToString()" />
+            <input type="text" @ondblclick="@(() => PreguntarSiQuiereBorrarCategoria(Data.Categorias.GetValueAt(i)))" @bind="@Data.Categorias.GetValueAt(i).Name" placeholder="@Data.Categorias.GetValueAt(i).ToString()" />
         }
     </div>
 

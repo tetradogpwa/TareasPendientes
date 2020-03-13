@@ -7,6 +7,7 @@ using TareasPendientes.Blazor2.Extension;
 using Gabriel.Cat.S.Extension;
 using Gabriel.Cat.S.Binaris;
 using System.IO;
+using Gabriel.Cat.S.Utilitats;
 
 namespace TareasPendientes.Blazor2.Entities
 {
@@ -81,26 +82,26 @@ namespace TareasPendientes.Blazor2.Entities
         internal static readonly ElementoBinario Serializador = new ListaBinaria();
         public Lista(string nombre, long id = -1) : base(nombre, id)
         {
-            Tareas = new SortedList<long, Tarea>();
-            ListasHerencia = new SortedList<long, Lista>();
-            TareasOcultas = new SortedList<long, Tarea>();
-            TareasHechas = new SortedList<long, DateTime>();
+            Tareas = new LlistaOrdenada<long, Tarea>();
+            ListasHerencia = new LlistaOrdenada<long, Lista>();
+            TareasOcultas = new LlistaOrdenada<long, Tarea>();
+            TareasHechas = new LlistaOrdenada<long, DateTime>();
         }
         public Lista(IList<Tarea> listaTemporal) : this("Temporal", 0)
         {
             Tareas.AddRange(listaTemporal);
         }
 
-        public SortedList<long, Tarea> Tareas { get; set; }
+        public LlistaOrdenada<long, Tarea> Tareas { get; set; }
 
 
-        public SortedList<long, Lista> ListasHerencia { get; set; }
+        public LlistaOrdenada<long, Lista> ListasHerencia { get; set; }
   
    
-        public SortedList<long, Tarea> TareasOcultas { get; set; }
+        public LlistaOrdenada<long, Tarea> TareasOcultas { get; set; }
 
      
-        public SortedList<long, DateTime> TareasHechas { get; set; }
+        public LlistaOrdenada<long, DateTime> TareasHechas { get; set; }
 
         ElementoBinario IElementoBinarioComplejo.Serialitzer => Serializador;
 
@@ -115,12 +116,12 @@ namespace TareasPendientes.Blazor2.Entities
         #region Enumerator
         private IEnumerator<Tarea> GetEnumerator()
         {
-            foreach (var lista in ListasHerencia)
-                foreach (var tarea in ((IEnumerable<Tarea>)lista.Value))
+            for (int i=0;i<ListasHerencia.Count;i++)
+                foreach (Tarea tarea in (IEnumerable<Tarea>)ListasHerencia.GetValueAt(i))
                     if (!TareasOcultas.Contains(tarea))
                         yield return tarea;
-            foreach (var tarea in Tareas)
-                yield return tarea.Value;
+            for(int i=0;i<Tareas.Count;i++)
+                yield return Tareas.GetValueAt(i);
         }
 
         IEnumerator<Tarea> IEnumerable<Tarea>.GetEnumerator()
@@ -135,44 +136,44 @@ namespace TareasPendientes.Blazor2.Entities
         }
         #endregion
 
-        public static IEnumerable<Lista> NoHereda(SortedList<long, Lista> dic, Lista lista)
+        public static IEnumerable NoHereda(IDictionary<long, Lista> dic, Lista lista)
         {
             //de todas las que hay, las listas que no se hereda
-            SortedList<long, Lista> dicNoHereda = dic.Clone();
+            LlistaOrdenada<long, Lista> dicNoHereda = dic.Clone();
             //hago el diccionario con recursividad
             IQuitarAncestros(dicNoHereda, lista);
             //envio los que no estan :)
             //quitar ancestros puedan heredar de sucesores
             dicNoHereda.RemoveRange(IQuitarSucesores(dicNoHereda, lista));
 
-            foreach (var item in dicNoHereda)
-            {
-                yield return item.Value;
-            }
+            return dic.GetValues(); 
 
 
         }
-        static List<Lista> IQuitarSucesores(SortedList<long, Lista> dic, Lista lista)
-        {
+        static List<Lista> IQuitarSucesores(LlistaOrdenada<long, Lista> dic, Lista lista)
+        {   
+            Lista lst;
             List<Lista> porQuitar = new List<Lista>();
+            
             //los que hereden//y sus descendencias los quito
-            foreach (var lst in dic)
+            for(int i=0;i<dic.Count;i++)
             {
-                if (lst.Value.ListasHerencia.Contains(lista))
+                lst = dic.GetValueAt(i);
+                if (lst.ListasHerencia.Contains(lista))
                 {
-                    porQuitar.Add(lst.Value);
-                    porQuitar.AddRange(IQuitarSucesores(dic, lst.Value));
+                    porQuitar.Add(lst);
+                    porQuitar.AddRange(IQuitarSucesores(dic, lst));
                 }
             }
             return porQuitar;
         }
 
-        public static void IQuitarAncestros(SortedList<long, Lista> dic, Lista lista)
+        public static void IQuitarAncestros(LlistaOrdenada<long, Lista> dic, Lista lista)
         {
             dic.Remove(lista);
-            foreach (var item in lista.ListasHerencia)
+            for(int i=0;i< lista.ListasHerencia.Count;i++)
             {
-                IQuitarAncestros(dic, item.Value);
+                IQuitarAncestros(dic, lista.ListasHerencia.GetValueAt(i));
             }
 
 

@@ -33,6 +33,8 @@
     void Buscar()
     {
         List<Tarea> tareasEncontradas = new List<Tarea>();
+        Lista lst;
+        Tarea tarea;
         if (!string.IsNullOrEmpty(TextoBusqueda))
         {
             TextoBusqueda = TextoBusqueda.Trim();
@@ -40,14 +42,16 @@
             if (!string.IsNullOrEmpty(TextoBusqueda))
             {
                 tareasLista.Clear();
-                foreach (var lista in Datos.Listas)
+                for(int i=0;i<Datos.Listas.Count;i++)
                 {
-                    foreach (var tarea in lista.Value.Tareas)
+                    lst = Datos.Listas.GetValueAt(i);
+                    for(int j=0;j<lst.Tareas.Count;j++)
                     {
-                        if (!string.IsNullOrEmpty(tarea.Value.Name) && tarea.Value.Name.Contains(TextoBusqueda))
+                        tarea = lst.Tareas.GetValueAt(j);
+                        if (!string.IsNullOrEmpty(tarea.Name) && tarea.Name.Contains(TextoBusqueda))
                         {
-                            tareasEncontradas.Add(tarea.Value);
-                            tareasLista.Add(tarea.Value.Id, lista.Value);
+                            tareasEncontradas.Add(tarea);
+                            tareasLista.Add(tarea.Id, lst);
                         }
                     }
                 }

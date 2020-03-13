@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Collections;
 using System.IO;
 using TareasPendientes.Blazor2.Extension;
+using Gabriel.Cat.S.Utilitats;
 
 namespace TareasPendientes.Blazor2.Entities
 {
@@ -52,10 +53,10 @@ namespace TareasPendientes.Blazor2.Entities
     
         public Categoria(string nombre, long id = -1) : base(nombre, id)
         {
-            Listas = new SortedList<long, Lista>();
+            Listas = new LlistaOrdenada<long, Lista>();
         }
 
-        public SortedList<long, Lista> Listas { get; set; }
+        public LlistaOrdenada<long, Lista> Listas { get; set; }
 
         ElementoBinario IElementoBinarioComplejo.Serialitzer => Serializador;
     }

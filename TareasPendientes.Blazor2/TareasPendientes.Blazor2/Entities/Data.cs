@@ -8,6 +8,7 @@ using Gabriel.Cat.S.Extension;
 using Gabriel.Cat.S.Binaris;
 using System.IO;
 using System.Collections;
+using Gabriel.Cat.S.Utilitats;
 
 namespace TareasPendientes.Blazor2.Entities
 {
@@ -54,7 +55,7 @@ namespace TareasPendientes.Blazor2.Entities
 
                 for (int i = 0; i < listas.Length; i++)
                 {
-                    tareas.AddRange(listas[i].Tareas.Values);
+                    tareas.AddRange(listas[i].Tareas.GetValues());
                 }
 
                 for (int i = 0; i < listas.Length; i++)
@@ -79,8 +80,8 @@ namespace TareasPendientes.Blazor2.Entities
 
         public Data()
         {
-            Listas = new SortedList<long, Lista>();
-            Categorias = new SortedList<long, Categoria>();
+            Listas = new LlistaOrdenada<long, Lista>();
+            Categorias = new LlistaOrdenada<long, Categoria>();
             Listas.Add(new Lista("Mi primera lista", 0));
             Categorias.Add(new Categoria("Todas", 0) { Listas = Listas });
         }
@@ -90,9 +91,9 @@ namespace TareasPendientes.Blazor2.Entities
         }
 
 
-        public SortedList<long, Lista> Listas { get; set; }
+        public LlistaOrdenada<long, Lista> Listas { get; set; }
 
-        public SortedList<long, Categoria> Categorias { get; set; }
+        public LlistaOrdenada<long, Categoria> Categorias { get; set; }
 
         ElementoBinario IElementoBinarioComplejo.Serialitzer => Serializador;
 

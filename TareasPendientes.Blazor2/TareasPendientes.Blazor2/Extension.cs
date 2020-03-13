@@ -1,6 +1,7 @@
 ﻿using Blazor.FileReader;
 using Gabriel.Cat.S.Binaris;
 using Gabriel.Cat.S.Extension;
+using Gabriel.Cat.S.Utilitats;
 using Microsoft.JSInterop;
 using System;
 using System.Collections.Generic;
@@ -14,46 +15,46 @@ namespace TareasPendientes.Blazor2.Extension
     public static class Extension
     {
 
-        public static T GetValue<T>(this SortedList<long, T> dic, Base value) 
+        public static T GetValue<T>(this IDictionary<long, T> dic, Base value) 
         {
             return dic.ContainsKey(value.Id)?dic[value.Id]:default;
         }
-        public static bool Contains<T>(this SortedList<long, T> dic, T value) where T : Base
+        public static bool Contains<T>(this IDictionary<long, T> dic, T value) where T : Base
         {
             bool contains=value!=default(T);
             if (contains)
                 contains = dic.ContainsKey(value.Id);
             return contains;
         }
-        public static void Add<T>(this SortedList<long, T> dic, T value) where T : Base
+        public static void Add<T>(this IDictionary<long, T> dic, T value) where T : Base
         {
             if (value != default(T))
                 dic.Add(value.Id, value);
         }
-        public static void Remove<T>(this SortedList<long, T> dic, T value) where T : Base
+        public static void Remove<T>(this IDictionary<long, T> dic, T value) where T : Base
         {
             if (value != default(T))
                 dic.Remove(value.Id);
         }
-        public static void AddRange<T>(this SortedList<long, T> dic, IList<T> values) where T : Base
+        public static void AddRange<T>(this IDictionary<long, T> dic, IList<T> values) where T : Base
         {
             if (values != null)
                for(int i=0;i<values.Count;i++)
                     dic.Add(values[i].Id, values[i]);
         }
-        public static void AddRange<T>(this SortedList<long, T> dic, IList<long> ids) where T : Base
+        public static void AddRange<T>(this IDictionary<long, T> dic, IList<long> ids) where T : Base
         {
             if (ids != null)
                 for (int i = 0; i < ids.Count; i++)
                     dic.Add(ids[i], default);
         }
-        public static void RemoveRange<T>(this SortedList<long, T> dic, IList<T> values) where T : Base
+        public static void RemoveRange<T>(this IDictionary<long, T> dic, IList<T> values) where T : Base
         {
             if (values != null)
                 for (int i = 0; i < values.Count; i++)
                     dic.Remove(values[i].Id);
         }
-        public static void SetValues<T>(this SortedList<long,T> dic,SortedList<long,T> values)
+        public static void SetValues<T>(this IDictionary<long,T> dic, IDictionary<long,T> values)
         {
             long[] ids;
             ids = dic.GetKeys();
@@ -61,9 +62,9 @@ namespace TareasPendientes.Blazor2.Extension
                 if(values.ContainsKey(ids[i]))
                    dic[ids[i]] = values[ids[i]];
         }
-        public static SortedList<TKey,TValue> Clone<TKey,TValue>(this SortedList<TKey,TValue> dic)
+        public static LlistaOrdenada<TKey,TValue> Clone<TKey,TValue>(this IDictionary<TKey,TValue> dic)
         {
-            SortedList<TKey,TValue> clon = new SortedList<TKey,TValue>();
+            LlistaOrdenada<TKey,TValue> clon = new LlistaOrdenada<TKey,TValue>();
             foreach (var item in dic)
                 clon.Add(item.Key, item.Value);
             return clon;

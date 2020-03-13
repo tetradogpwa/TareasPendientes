@@ -5,9 +5,9 @@
 {
 <h4>Listas</h4>
 <ul>
-    @foreach (var lista in Data.Listas)
-    {
-        <li @onclick="@(() => ListaActual = lista.Value)">@lista.Value.ToString()</li>
+    @for(int i=0;i<Data.Listas.Count;i++)
+        {
+        <li @onclick="@(() => ListaActual = Data.Listas.GetValueAt(i))">@Data.Listas.GetValueAt(i).ToString()</li>
     }
 </ul>
 @if (ListaActual != null)
@@ -15,9 +15,9 @@
     <h4>Lista Seleccionada: @ListaActual.ToString()</h4>
     <h5>Hereda</h5>
     <ul>
-        @foreach (var lista in ListaActual.ListasHerencia)
+        @for(int i=0;i< ListaActual.ListasHerencia.Count;i++)
         {
-            <li @onclick="@(() => PreguntarSiQuiereDeheredar(lista.Value))">@lista.Value.ToString()</li>
+            <li @onclick="@(() => PreguntarSiQuiereDeheredar(ListaActual.ListasHerencia.GetValueAt(i)))">@ListaActual.ListasHerencia.GetValueAt(i).ToString()</li>
         }
     </ul>
     <h5>No hereda</h5>

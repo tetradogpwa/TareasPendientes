@@ -6,9 +6,9 @@
     <div class="Eliminar-Listas">
         <h3>Eliminar Listas</h3>
         <ul>
-            @foreach (var lista in Data.Listas)
+            @for (int i = 0; i < Data.Listas.Count; i++)
             {
-                <li @ondblclick="@(() => PreguntarSiQuiereBorrarLista(lista.Value))" @onclick="@(() => ListaActual = lista.Value)">@lista.Value.ToString()</li>
+                <li @ondblclick="@(() => PreguntarSiQuiereBorrarLista(Data.Listas.GetValueAt(i)))" @onclick="@(() => ListaActual = Data.Listas.GetValueAt(i))">@Data.Listas.GetValueAt(i).ToString()</li>
             }
         </ul>
         @if (ListaActual != null)
@@ -26,22 +26,22 @@
             <div class="Lista-Categorias">
                 <h5>Estan en la lista</h5>
                 <ul class="Lista-Categorias-Estan">
-                    @foreach (var categoria in Data.Categorias)
+                    @for (int i = 0; i < Data.Categorias.Count; i++)
                     {
-                        if (categoria.Value.Listas.Contains(ListaActual) && categoria.Value.Id != 0)
+                        if (Data.Categorias.GetValueAt(i).Listas.Contains(ListaActual) && Data.Categorias.GetValueAt(i).Id != 0)
                         {
-                            <li @onclick="@(() => PreguntarSiQuiereQuitarLaCategoria(categoria.Value))">@categoria.Value.ToString()</li>
+                            <li @onclick="@(() => PreguntarSiQuiereQuitarLaCategoria(Data.Categorias.GetValueAt(i)))">@Data.Categorias.GetValueAt(i).ToString()</li>
                         }
                     }
                 </ul>
                 <h5>Disponibles</h5>
                 <ul class="Lista-Categorias-NoEstan">
 
-                    @foreach (var categoria in Data.Categorias)
+                    @for (int i = 0; i < Data.Categorias.Count; i++)
                     {
-                        if (!categoria.Value.Listas.Contains(ListaActual) && categoria.Key != 0)
+                        if (!Data.Categorias.GetValueAt(i).Listas.Contains(ListaActual) && Data.Categorias.GetKey(i)!= 0)
                         {
-                            <li @onclick="@(() => categoria.Value.Listas.Add(ListaActual))">@categoria.Value.ToString()</li>
+                            <li @onclick="@(() => Data.Categorias.GetValueAt(i).Listas.Add(ListaActual))">@Data.Categorias.GetValueAt(i).ToString()</li>
                         }
                     }
                 </ul>
@@ -71,22 +71,24 @@ else
     async Task PreguntarSiQuiereBorrarLista(Lista lista)
     {
         IList<Tarea> tareas;
+        Lista lst;
         if (await JS.PreguntaAsync($"Quieres eliminar la lista {lista.ToString()}?"))
         {
             Data.Listas.Remove(lista);
             tareas = lista.Tareas.GetValues();
-            foreach (var lst in Data.Listas)
+            for(int i=0;i<Data.Listas.Count;i++)
             {
-                if (lst.Value.ListasHerencia.Contains(lista))
+                lst = Data.Listas.GetValueAt(i);
+                if (lst.ListasHerencia.Contains(lista))
                 {
 
-                    lst.Value.ListasHerencia.Remove(lista);
-                    for (int i = 0; i < tareas.Count; i++)
+                    lst.ListasHerencia.Remove(lista);
+                    for (int j = 0; j < tareas.Count; j++)
                     {
-                        if (lst.Value.TareasHechas.ContainsKey(tareas[i].Id))
-                            lst.Value.TareasHechas.Remove(tareas[i].Id);
+                        if (lst.TareasHechas.ContainsKey(tareas[j].Id))
+                            lst.TareasHechas.Remove(tareas[j].Id);
                     }
-                    lst.Value.TareasOcultas.RemoveRange(tareas);
+                    lst.TareasOcultas.RemoveRange(tareas);
 
                 }
             }
