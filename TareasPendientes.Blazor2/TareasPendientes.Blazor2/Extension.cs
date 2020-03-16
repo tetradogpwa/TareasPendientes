@@ -54,21 +54,6 @@ namespace TareasPendientes.Blazor2.Extension
                 for (int i = 0; i < values.Count; i++)
                     dic.Remove(values[i].Id);
         }
-        public static void SetValues<T>(this IDictionary<long,T> dic, IDictionary<long,T> values)
-        {
-            long[] ids;
-            ids = dic.GetKeys();
-            for (int i = 0; i < ids.Length; i++)
-                if(values.ContainsKey(ids[i]))
-                   dic[ids[i]] = values[ids[i]];
-        }
-        public static LlistaOrdenada<TKey,TValue> Clone<TKey,TValue>(this IDictionary<TKey,TValue> dic)
-        {
-            LlistaOrdenada<TKey,TValue> clon = new LlistaOrdenada<TKey,TValue>();
-            foreach (var item in dic)
-                clon.Add(item.Key, item.Value);
-            return clon;
-        }
 
         public static async Task MostrarMensajeAsync(this IJSRuntime js, string mensaje)
         {
@@ -103,10 +88,7 @@ namespace TareasPendientes.Blazor2.Extension
         }
 
 
-        public static T Last<T>(this IList<T> lst)
-        {
-            return lst.Count>0? lst[lst.Count - 1]:default;
-        }
+
 
         public static async Task<byte[]> Read(this IFileReference fileReader, int buffer = 4 * 1024)
         {

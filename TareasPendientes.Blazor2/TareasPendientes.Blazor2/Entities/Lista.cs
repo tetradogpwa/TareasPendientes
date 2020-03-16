@@ -139,7 +139,7 @@ namespace TareasPendientes.Blazor2.Entities
         public static IEnumerable NoHereda(IDictionary<long, Lista> dic, Lista lista)
         {
             //de todas las que hay, las listas que no se hereda
-            LlistaOrdenada<long, Lista> dicNoHereda = dic.Clone();
+            IDictionary<long, Lista> dicNoHereda = dic.Clone();
             //hago el diccionario con recursividad
             IQuitarAncestros(dicNoHereda, lista);
             //envio los que no estan :)
@@ -150,25 +150,25 @@ namespace TareasPendientes.Blazor2.Entities
 
 
         }
-        static List<Lista> IQuitarSucesores(LlistaOrdenada<long, Lista> dic, Lista lista)
+        static List<Lista> IQuitarSucesores(IDictionary<long, Lista> dic, Lista lista)
         {   
-            Lista lst;
+            Lista[] lsts=dic.GetValues();
             List<Lista> porQuitar = new List<Lista>();
             
             //los que hereden//y sus descendencias los quito
             for(int i=0;i<dic.Count;i++)
             {
-                lst = dic.GetValueAt(i);
-                if (lst.ListasHerencia.Contains(lista))
+         
+                if (lsts[i].ListasHerencia.Contains(lista))
                 {
-                    porQuitar.Add(lst);
-                    porQuitar.AddRange(IQuitarSucesores(dic, lst));
+                    porQuitar.Add(lsts[i]);
+                    porQuitar.AddRange(IQuitarSucesores(dic, lsts[i]));
                 }
             }
             return porQuitar;
         }
 
-        public static void IQuitarAncestros(LlistaOrdenada<long, Lista> dic, Lista lista)
+        public static void IQuitarAncestros(IDictionary<long, Lista> dic, Lista lista)
         {
             dic.Remove(lista);
             for(int i=0;i< lista.ListasHerencia.Count;i++)
