@@ -52,10 +52,12 @@ class Categoria {
     static GetById(id) {
         if (!(id instanceof Promise))
             id = Promise.resolve(id);
-        return id.then((i) => {
-            var categoria;
+        return id.then((idNum) => {
+            var categoria=null;
             if (Categoria._dic) {
-                categoria = Categoria._dic.get(i);
+                if(Categoria._dic.has(idNum)){
+                categoria = Categoria._dic.get(idNum);
+                }
             }
             return categoria;
         });

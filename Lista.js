@@ -40,11 +40,16 @@ class Lista {
             tarea = Promise.resolve(tarea);
         return tarea.then((t) => this._dicTareasHechas.get(t.Id));
     }
-    HacerTarea(tarea) {
+    HacerTarea(tarea,date=null) {
+
+        if (date!=null && !(date instanceof Date))
+            date=null;
+
         if (!(tarea instanceof Promise))
             tarea = Promise.resolve(tarea);
+            
         return tarea.then((t) => {
-            this._dicTareasHechas.put(t.Id, Date.now());
+            this._dicTareasHechas.put(t.Id, date==null?Date.now():date);
         });
     }
     RemoveTarea(tarea) {

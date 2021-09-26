@@ -43,11 +43,12 @@ class Tarea {
     static GetById(id) {
         if (!(id instanceof Promise))
             id = Promise.resolve(id);
-        return id.then((i) => {
-            var tarea;
+        return id.then((idNum) => {
+            var tarea=null;
 
             if (Tarea._dic) {
-                tarea = Tarea._dic.get(i);
+                if(Tarea._dic.has(idNum))
+                    tarea = Tarea._dic.get(idNum);
             }
             return tarea;
         });
